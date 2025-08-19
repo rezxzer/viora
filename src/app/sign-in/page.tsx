@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
-import SignInForm from "./signin-form.tsx";
+import SignInForm from "./signin-form";
 
 export default async function SignInPage({
   searchParams,
