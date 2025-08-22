@@ -1,8 +1,8 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from '@/components/ui/card'
 
 type Props = {
-  withImage?: boolean;
-};
+  withImage?: boolean
+}
 
 /**
  * PostCardSkeleton: visual placeholder for a post card.
@@ -29,7 +29,5 @@ export default function PostCardSkeleton({ withImage }: Props) {
         ) : null}
       </CardContent>
     </Card>
-  );
+  )
 }
-
-

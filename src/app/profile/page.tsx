@@ -1,73 +1,73 @@
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
-import { createSupabaseServerClient } from "@/lib/supabase-server";
-import { redirect } from "next/navigation";
-import AvatarUploader from "@/components/profile/AvatarUploader";
-import ProfileTabs from "./ProfileTabs";
+import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { redirect } from 'next/navigation'
+import AvatarUploader from '@/components/profile/AvatarUploader'
+import ProfileTabs from './ProfileTabs'
 
 export default async function ProfilePage() {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient()
   const [{ data: sessionData }, { data: profileData }] = await Promise.all([
     supabase.auth.getSession(),
     supabase
-      .from("profiles")
+      .from('profiles')
       .select(
-        "id, full_name, username, bio, avatar_url, location, website, birthday, links, pronouns, is_private"
+        'id, full_name, username, bio, avatar_url, location, website, birthday, links, pronouns, is_private'
       )
       .maybeSingle(),
-  ]);
+  ])
 
-  const session = sessionData.session;
+  const session = sessionData.session
   if (!session) {
-    redirect("/sign-in?message=Please sign in to continue.");
+    redirect('/sign-in?message=Please sign in to continue.')
   }
 
-  const currentUserId = session.user.id;
-  let profile = profileData;
+  const currentUserId = session.user.id
+  let profile = profileData
   if (!profile || profile.id !== currentUserId) {
     const { data } = await supabase
-      .from("profiles")
+      .from('profiles')
       .select(
-        "id, full_name, username, bio, avatar_url, location, website, birthday, links, pronouns, is_private"
+        'id, full_name, username, bio, avatar_url, location, website, birthday, links, pronouns, is_private'
       )
-      .eq("id", currentUserId)
-      .single();
-    profile = data ?? null;
+      .eq('id', currentUserId)
+      .single()
+    profile = data ?? null
   }
 
   // Fetch profile stats via RPC
   type ProfileStats = {
-    followers_count: number;
-    following_count: number;
-    posts_count: number;
-    likes_received: number;
-    last_post_at: string | null;
-  };
+    followers_count: number
+    following_count: number
+    posts_count: number
+    likes_received: number
+    last_post_at: string | null
+  }
   const { data: statsRow } = await supabase
-    .rpc("get_profile_stats", { target: currentUserId })
-    .maybeSingle();
-  const stats = (statsRow ?? null) as ProfileStats | null;
+    .rpc('get_profile_stats', { target: currentUserId })
+    .maybeSingle()
+  const stats = (statsRow ?? null) as ProfileStats | null
 
   // Fetch recent posts and their stats
   const { data: postsData } = await supabase
-    .from("v_post_stats")
-    .select("post_id, author_id, likes_count, comments_count, created_at")
-    .eq("author_id", currentUserId)
-    .order("created_at", { ascending: false })
-    .limit(10);
+    .from('v_post_stats')
+    .select('post_id, author_id, likes_count, comments_count, created_at')
+    .eq('author_id', currentUserId)
+    .order('created_at', { ascending: false })
+    .limit(10)
 
-  let likedIds: string[] = [];
+  let likedIds: string[] = []
   if (postsData && postsData.length > 0) {
     const { data: likedRows } = await supabase
-      .from("post_likes")
-      .select("post_id")
-      .eq("user_id", currentUserId)
+      .from('post_likes')
+      .select('post_id')
+      .eq('user_id', currentUserId)
       .in(
-        "post_id",
+        'post_id',
         postsData.map((p) => p.post_id)
-      );
-    likedIds = ((likedRows ?? []) as { post_id: string }[]).map((r) => r.post_id);
+      )
+    likedIds = ((likedRows ?? []) as { post_id: string }[]).map((r) => r.post_id)
   }
 
   return (
@@ -93,19 +93,21 @@ export default async function ProfilePage() {
             pronouns: profile?.pronouns ?? null,
             is_private: (profile?.is_private as boolean | null) ?? null,
           }}
-          initialStats={stats ? {
-            followers_count: stats.followers_count ?? 0,
-            following_count: stats.following_count ?? 0,
-            posts_count: stats.posts_count ?? 0,
-            likes_received: stats.likes_received ?? 0,
-          } : null}
+          initialStats={
+            stats
+              ? {
+                  followers_count: stats.followers_count ?? 0,
+                  following_count: stats.following_count ?? 0,
+                  posts_count: stats.posts_count ?? 0,
+                  likes_received: stats.likes_received ?? 0,
+                }
+              : null
+          }
           showFollowButton={false}
           initialPosts={postsData ?? []}
           initialLikedPostIds={likedIds}
         />
       </div>
     </div>
-  );
+  )
 }
-
-

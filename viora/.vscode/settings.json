@@ -1,7 +1,7 @@
 {
   "cursor.agentMode": "always",
   "cursor.defaultAgent": ".cursor/agent.json",
-  "cursor.explainLanguage": "KA", 
+  "cursor.explainLanguage": "KA",
   "cursor.codeLanguage": "EN",
   "cursor.rulesFile": ".cursorrules",
   "editor.formatOnSave": true,
@@ -13,5 +13,3 @@
     "**/build": true
   }
 }
-
-

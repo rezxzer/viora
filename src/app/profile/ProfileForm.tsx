@@ -1,64 +1,71 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { z } from "zod";
-import { useForm, type Resolver } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { supabaseBrowserClient } from "@/lib/supabase-client";
-import { toast } from "sonner";
-import type { ProfileData } from "./types";
+import { useState } from 'react'
+import { z } from 'zod'
+import { useForm, type Resolver } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { supabaseBrowserClient } from '@/lib/supabase-client'
+import { toast } from 'sonner'
+import type { ProfileData } from './types'
 
 const schema = z.object({
-  full_name: z.string().max(80).optional().default(""),
+  full_name: z.string().max(80).optional().default(''),
   username: z
     .string()
     .min(3)
     .max(20)
     .regex(/^[a-z0-9_]+$/)
     .transform((v) => v.toLowerCase()),
-  bio: z.string().max(300).optional().default(""),
-  location: z.string().max(80).optional().default(""),
+  bio: z.string().max(300).optional().default(''),
+  location: z.string().max(80).optional().default(''),
   website: z
     .string()
     .optional()
-    .default("")
-    .refine((v) => v === "" || /^https?:\/\//i.test(v), { message: "Invalid URL" }),
-  birthday: z.string().optional().default(""),
-  pronouns: z.string().max(40).optional().default(""),
+    .default('')
+    .refine((v) => v === '' || /^https?:\/\//i.test(v), { message: 'Invalid URL' }),
+  birthday: z.string().optional().default(''),
+  pronouns: z.string().max(40).optional().default(''),
   links: z.record(z.string(), z.string().url()).optional().default({}),
-});
+})
 
 type Props = {
-  userId: string;
-  initial: ProfileData;
-};
+  userId: string
+  initial: ProfileData
+}
 
 export default function ProfileForm({ userId, initial }: Props) {
-  const [saving, setSaving] = useState(false);
-  type ProfileFormValues = z.infer<typeof schema>;
+  const [saving, setSaving] = useState(false)
+  type ProfileFormValues = z.infer<typeof schema>
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(schema) as unknown as Resolver<ProfileFormValues>,
     defaultValues: {
-      full_name: initial.full_name ?? "",
-      username: initial.username ?? "",
-      bio: initial.bio ?? "",
-      location: initial.location ?? "",
-      website: initial.website ?? "",
-      birthday: initial.birthday ?? "",
-      pronouns: initial.pronouns ?? "",
+      full_name: initial.full_name ?? '',
+      username: initial.username ?? '',
+      bio: initial.bio ?? '',
+      location: initial.location ?? '',
+      website: initial.website ?? '',
+      birthday: initial.birthday ?? '',
+      pronouns: initial.pronouns ?? '',
       links: (initial.links as Record<string, string> | null) ?? {},
     },
-  });
+  })
 
   const onSubmit = async (values: z.infer<typeof schema>) => {
-    setSaving(true);
-    const supabase = supabaseBrowserClient();
+    setSaving(true)
+    const supabase = supabaseBrowserClient()
     const { error } = await supabase
-      .from("profiles")
+      .from('profiles')
       .update({
         full_name: values.full_name,
         username: values.username,
@@ -69,20 +76,20 @@ export default function ProfileForm({ userId, initial }: Props) {
         pronouns: values.pronouns || null,
         links: values.links && Object.keys(values.links).length ? values.links : null,
       })
-      .eq("id", userId);
+      .eq('id', userId)
 
-    setSaving(false);
+    setSaving(false)
 
     if (error) {
-      if (error.code === "23505") {
-        toast.error("Username already taken");
+      if (error.code === '23505') {
+        toast.error('Username already taken')
       } else {
-        toast.error(error.message);
+        toast.error(error.message)
       }
-      return;
+      return
     }
-    toast.success("Profile updated");
-  };
+    toast.success('Profile updated')
+  }
 
   return (
     <Form {...form}>
@@ -109,7 +116,9 @@ export default function ProfileForm({ userId, initial }: Props) {
               <FormControl>
                 <Input placeholder="username" {...field} />
               </FormControl>
-              <p className="text-xs text-muted-foreground">Lowercase letters, numbers, underscore. 3–20.</p>
+              <p className="text-xs text-muted-foreground">
+                Lowercase letters, numbers, underscore. 3–20.
+              </p>
               <FormMessage />
             </FormItem>
           )}
@@ -195,11 +204,11 @@ export default function ProfileForm({ userId, initial }: Props) {
               <FormControl>
                 <Textarea
                   placeholder='{"twitter":"https://twitter.com/me"}'
-                  defaultValue={JSON.stringify(form.getValues("links") || {}, null, 2)}
+                  defaultValue={JSON.stringify(form.getValues('links') || {}, null, 2)}
                   onChange={(e) => {
                     try {
-                      const parsed = JSON.parse(e.target.value || "{}");
-                      form.setValue("links", parsed);
+                      const parsed = JSON.parse(e.target.value || '{}')
+                      form.setValue('links', parsed)
                     } catch {
                       /* ignore parse while typing */
                     }
@@ -212,11 +221,9 @@ export default function ProfileForm({ userId, initial }: Props) {
         />
 
         <Button type="submit" disabled={saving}>
-          {saving ? "Saving..." : "Save profile"}
+          {saving ? 'Saving...' : 'Save profile'}
         </Button>
       </form>
     </Form>
-  );
+  )
 }
-
-

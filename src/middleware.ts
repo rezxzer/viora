@@ -1,38 +1,30 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
+import { NextResponse, type NextRequest } from 'next/server'
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next({ request: { headers: req.headers } });
+  const res = NextResponse.next({ request: { headers: req.headers } })
 
-  const supabase = createMiddlewareClient({ req, res });
+  const supabase = createMiddlewareClient({ req, res })
 
   const {
     data: { session },
-  } = await supabase.auth.getSession();
+  } = await supabase.auth.getSession()
 
-  const protectedPaths = [
-    "/feed",
-    "/chat",
-    "/profile",
-    "/settings",
-    "/premium",
-  ];
+  const protectedPaths = ['/feed', '/chat', '/profile', '/settings', '/premium']
 
-  const { pathname } = req.nextUrl;
-  const isProtected = protectedPaths.some((p) => pathname.startsWith(p));
+  const { pathname } = req.nextUrl
+  const isProtected = protectedPaths.some((p) => pathname.startsWith(p))
 
   if (isProtected && !session) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/sign-in";
-    url.searchParams.set("message", "Please sign in to continue.");
-    return NextResponse.redirect(url);
+    const url = req.nextUrl.clone()
+    url.pathname = '/sign-in'
+    url.searchParams.set('message', 'Please sign in to continue.')
+    return NextResponse.redirect(url)
   }
 
-  return res;
+  return res
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|public).*)"],
-};
-
-
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|public).*)'],
+}

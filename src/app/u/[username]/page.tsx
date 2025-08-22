@@ -1,82 +1,82 @@
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
-import { createSupabaseServerClient } from "@/lib/supabase-server";
-import ProfileTabs from "@/app/profile/ProfileTabs";
-import { notFound } from "next/navigation";
-import SubscribeBar from "./SubscribeBar";
-import TipDialog from "./TipDialog";
+import { createSupabaseServerClient } from '@/lib/supabase-server'
+import ProfileTabs from '@/app/profile/ProfileTabs'
+import { notFound } from 'next/navigation'
+import SubscribeBar from './SubscribeBar'
+import TipDialog from './TipDialog'
 
-type Params = { params: Promise<{ username: string }> };
+type Params = { params: Promise<{ username: string }> }
 type PublicProfile = {
-  id: string;
-  full_name: string | null;
-  username: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-};
+  id: string
+  full_name: string | null
+  username: string | null
+  bio: string | null
+  avatar_url: string | null
+}
 type ProfileStats = {
-  followers_count: number;
-  following_count: number;
-  posts_count: number;
-  likes_received: number;
-  last_post_at: string | null;
-};
+  followers_count: number
+  following_count: number
+  posts_count: number
+  likes_received: number
+  last_post_at: string | null
+}
 
 export default async function PublicProfilePage({ params }: Params) {
-  const supabase = await createSupabaseServerClient();
-  const { username } = await params;
+  const supabase = await createSupabaseServerClient()
+  const { username } = await params
 
   const { data: profile } = await supabase
-    .rpc("get_public_profile", { p_username: username })
-    .maybeSingle<PublicProfile>();
+    .rpc('get_public_profile', { p_username: username })
+    .maybeSingle<PublicProfile>()
 
   if (!profile) {
-    notFound();
+    notFound()
   }
 
   const {
     data: { session },
-  } = await supabase.auth.getSession();
+  } = await supabase.auth.getSession()
 
-  const viewerId = session?.user.id ?? null;
+  const viewerId = session?.user.id ?? null
 
   // Stats for target user via RPC
   const { data: statsRow } = await supabase
-    .rpc("get_profile_stats", { target: profile.id })
-    .maybeSingle();
-  const stats = (statsRow ?? null) as ProfileStats | null;
+    .rpc('get_profile_stats', { target: profile.id })
+    .maybeSingle()
+  const stats = (statsRow ?? null) as ProfileStats | null
 
   // Whether current viewer follows this profile
-  let isFollowing = false;
+  let isFollowing = false
   if (viewerId) {
     const { data: rel } = await supabase
-      .from("follows")
-      .select("follower_id")
-      .eq("follower_id", viewerId)
-      .eq("followee_id", profile.id)
-      .maybeSingle();
-    isFollowing = !!rel;
+      .from('follows')
+      .select('follower_id')
+      .eq('follower_id', viewerId)
+      .eq('followee_id', profile.id)
+      .maybeSingle()
+    isFollowing = !!rel
   }
 
   const { data: posts } = await supabase
-    .from("v_post_stats")
-    .select("post_id, author_id, likes_count, comments_count, created_at")
-    .eq("author_id", profile.id)
-    .order("created_at", { ascending: false })
-    .limit(10);
+    .from('v_post_stats')
+    .select('post_id, author_id, likes_count, comments_count, created_at')
+    .eq('author_id', profile.id)
+    .order('created_at', { ascending: false })
+    .limit(10)
 
-  let likedIds: string[] = [];
+  let likedIds: string[] = []
   if (viewerId && posts && posts.length > 0) {
     const { data: likedRows } = await supabase
-      .from("post_likes")
-      .select("post_id")
-      .eq("user_id", viewerId)
+      .from('post_likes')
+      .select('post_id')
+      .eq('user_id', viewerId)
       .in(
-        "post_id",
+        'post_id',
         posts.map((p) => p.post_id)
-      );
-    likedIds = ((likedRows ?? []) as { post_id: string }[]).map((r) => r.post_id);
+      )
+    likedIds = ((likedRows ?? []) as { post_id: string }[]).map((r) => r.post_id)
   }
 
   return (
@@ -85,7 +85,7 @@ export default async function PublicProfilePage({ params }: Params) {
         {/* Public view keeps avatar read-only; reuse uploader later if owner */}
         <img
           src={profile.avatar_url ?? undefined}
-          alt={profile.username ?? "avatar"}
+          alt={profile.username ?? 'avatar'}
           className="h-40 w-40 rounded-2xl object-cover bg-accent"
         />
         {viewerId && viewerId !== profile.id ? (
@@ -98,7 +98,7 @@ export default async function PublicProfilePage({ params }: Params) {
       <div className="max-w-2xl">
         <h1 className="text-xl font-semibold mb-4">@{profile.username}</h1>
         <ProfileTabs
-          userId={viewerId ?? ""}
+          userId={viewerId ?? ''}
           profile={{
             id: profile.id,
             full_name: profile.full_name ?? null,
@@ -112,12 +112,16 @@ export default async function PublicProfilePage({ params }: Params) {
             pronouns: null,
             is_private: null,
           }}
-          initialStats={stats ? {
-            followers_count: stats.followers_count ?? 0,
-            following_count: stats.following_count ?? 0,
-            posts_count: stats.posts_count ?? 0,
-            likes_received: stats.likes_received ?? 0,
-          } : null}
+          initialStats={
+            stats
+              ? {
+                  followers_count: stats.followers_count ?? 0,
+                  following_count: stats.following_count ?? 0,
+                  posts_count: stats.posts_count ?? 0,
+                  likes_received: stats.likes_received ?? 0,
+                }
+              : null
+          }
           showFollowButton={!!viewerId && viewerId !== profile.id}
           targetUserId={profile.id}
           initialIsFollowing={isFollowing}
@@ -128,7 +132,5 @@ export default async function PublicProfilePage({ params }: Params) {
         />
       </div>
     </div>
-  );
+  )
 }
-
-

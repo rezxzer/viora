@@ -1,11 +1,11 @@
-"use client";
+'use client'
 
-import Sidebar from "./Sidebar";
-import Topbar from "./Topbar";
+import Sidebar from './Sidebar'
+import Topbar from './Topbar'
 
 type Props = {
-  children: React.ReactNode;
-};
+  children: React.ReactNode
+}
 
 /**
  * AppShell: Composes Topbar and Sidebar with a responsive content area.
@@ -21,7 +21,5 @@ export default function AppShell({ children }: Props) {
         </main>
       </div>
     </div>
-  );
+  )
 }
-
-

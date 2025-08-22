@@ -1,56 +1,63 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { supabaseBrowserClient } from "@/lib/supabase-client";
-import { toast } from "sonner";
+import { useState } from 'react'
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { supabaseBrowserClient } from '@/lib/supabase-client'
+import { toast } from 'sonner'
 
-const emailSchema = z.object({ email: z.string().email() });
+const emailSchema = z.object({ email: z.string().email() })
 const passwordSchema = z
   .object({ password: z.string().min(6), confirm: z.string().min(6) })
-  .refine((v) => v.password === v.confirm, { message: "Passwords do not match", path: ["confirm"] });
+  .refine((v) => v.password === v.confirm, { message: 'Passwords do not match', path: ['confirm'] })
 
 export default function AccountForm() {
-  const supabase = supabaseBrowserClient();
-  const [savingEmail, setSavingEmail] = useState(false);
-  const [savingPass, setSavingPass] = useState(false);
+  const supabase = supabaseBrowserClient()
+  const [savingEmail, setSavingEmail] = useState(false)
+  const [savingPass, setSavingPass] = useState(false)
 
   const emailForm = useForm<z.infer<typeof emailSchema>>({
     resolver: zodResolver(emailSchema),
-    defaultValues: { email: "" },
-  });
+    defaultValues: { email: '' },
+  })
 
   const passwordForm = useForm<z.infer<typeof passwordSchema>>({
     resolver: zodResolver(passwordSchema),
-    defaultValues: { password: "", confirm: "" },
-  });
+    defaultValues: { password: '', confirm: '' },
+  })
 
   const onEmailSave = async (values: z.infer<typeof emailSchema>) => {
-    setSavingEmail(true);
-    const { error } = await supabase.auth.updateUser({ email: values.email });
-    setSavingEmail(false);
+    setSavingEmail(true)
+    const { error } = await supabase.auth.updateUser({ email: values.email })
+    setSavingEmail(false)
     if (error) {
-      toast.error(error.message);
-      return;
+      toast.error(error.message)
+      return
     }
-    toast.info("If email confirmation is required, check your inbox.");
-  };
+    toast.info('If email confirmation is required, check your inbox.')
+  }
 
   const onPasswordSave = async (values: z.infer<typeof passwordSchema>) => {
-    setSavingPass(true);
-    const { error } = await supabase.auth.updateUser({ password: values.password });
-    setSavingPass(false);
+    setSavingPass(true)
+    const { error } = await supabase.auth.updateUser({ password: values.password })
+    setSavingPass(false)
     if (error) {
-      toast.error(error.message);
-      return;
+      toast.error(error.message)
+      return
     }
-    toast.success("Password updated");
-  };
+    toast.success('Password updated')
+  }
 
   return (
     <div className="space-y-6">
@@ -72,7 +79,7 @@ export default function AccountForm() {
               )}
             />
             <Button type="submit" disabled={savingEmail}>
-              {savingEmail ? "Saving..." : "Save"}
+              {savingEmail ? 'Saving...' : 'Save'}
             </Button>
           </form>
         </Form>
@@ -81,7 +88,10 @@ export default function AccountForm() {
       <div className="space-y-3">
         <h3 className="text-base font-medium">Change Password</h3>
         <Form {...passwordForm}>
-          <form onSubmit={passwordForm.handleSubmit(onPasswordSave)} className="grid gap-2 md:grid-cols-3">
+          <form
+            onSubmit={passwordForm.handleSubmit(onPasswordSave)}
+            className="grid gap-2 md:grid-cols-3"
+          >
             <FormField
               control={passwordForm.control}
               name="password"
@@ -110,14 +120,12 @@ export default function AccountForm() {
             />
             <div className="flex items-end">
               <Button type="submit" disabled={savingPass}>
-                {savingPass ? "Saving..." : "Save"}
+                {savingPass ? 'Saving...' : 'Save'}
               </Button>
             </div>
           </form>
         </Form>
       </div>
     </div>
-  );
+  )
 }
-
-

@@ -4,7 +4,5 @@ export default function SignUpLoading() {
       <div className="h-6 w-24 bg-accent rounded" />
       <div className="h-24 bg-accent rounded" />
     </div>
-  );
+  )
 }
-
-
