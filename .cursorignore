@@ -1,0 +1,18 @@
+# .cursorignore
+
+# Never read/write these folders
+node_modules
+.next
+dist
+build
+
+# Sensitive files
+.env
+.env.*
+*.lock
+
+# Git
+.git
+.gitignore
+
+

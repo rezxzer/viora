@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/getcursor/cursorrules/main/schema/agent.schema.json",
+  "name": "ViORA Agent",
+  "description": "Agent for ViORA project (Next.js + Supabase). Always follow .cursorrules.",
+  "rules": [
+    "Always follow .cursorrules file at project root.",
+    "Never lose project context after restart.",
+    "Code = ENGLISH, Explanations = GEORGIAN.",
+    "Supabase schema updates must be printed as explicit SQL blocks.",
+    "Keep tasks atomic (1 change per step)."
+  ]
+}
+
+

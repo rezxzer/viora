@@ -1,0 +1,33 @@
+# .cursorrules
+
+# Project: ViORA (Next.js 14 + Tailwind + shadcn/ui + Supabase)
+# House rules (VERY IMPORTANT):
+- Code is always written in ENGLISH. Explanations to the user are in GEORGIAN.
+- When adding/updating any Supabase table/policy/bucket:
+  (1) Output a clear SQL block titled „ეს კოდი ჩასასმელია Supabase-ში”.
+  (2) Never silently change schema in app code. Always show the SQL explicitly.
+- Keep messages to the agent short & atomic; one task per step.
+
+# Tech constraints:
+- Next.js App Router, TypeScript, Tailwind v4 tokens already defined
+- Supabase auth/storage already wired; use existing clients (browser/server)
+- DB schema lives under /db (schema/seed/maintenance). Do not invent new tables unless asked.
+
+# UX conventions:
+- Rounded-2xl, soft shadows, tokenized colors (surface/elev/border/primary)
+- A11y first; keyboard + SR labels; respect prefers-reduced-motion
+
+# File hygiene:
+- Place any new SQL in /db/schema or /db/maintenance and print the exact block for Supabase.
+- No noisy refactors; keep PR-sized atomic diffs with clear commit messages.
+
+# Critical pages:
+- /feed shows posts (server fetch + pagination + composer)
+- /profile has tabs: Profile, Account, Privacy, Monetization (premium)
+- Reactions include the premium gold “VIORA” button (special styling, optional paywall)
+
+# What NOT to do:
+- Don’t hardcode secrets.
+- Don’t rely on Supabase Dashboard snippets; DB changes are repo-managed.
+
+
