@@ -1,12 +1,21 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
-import ProfileForm from "./profile-form";
+import AvatarUploader from "@/components/profile/AvatarUploader";
+import ProfileTabs from "./ProfileTabs";
 
 export default async function ProfilePage() {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const [{ data: sessionData }, { data: profileData }] = await Promise.all([
     supabase.auth.getSession(),
-    supabase.from("profiles").select("id, full_name, username, bio, avatar_url").maybeSingle(),
+    supabase
+      .from("profiles")
+      .select(
+        "id, full_name, username, bio, avatar_url, location, website, birthday, links, pronouns, is_private"
+      )
+      .maybeSingle(),
   ]);
 
   const session = sessionData.session;
@@ -19,16 +28,82 @@ export default async function ProfilePage() {
   if (!profile || profile.id !== currentUserId) {
     const { data } = await supabase
       .from("profiles")
-      .select("id, full_name, username, bio, avatar_url")
+      .select(
+        "id, full_name, username, bio, avatar_url, location, website, birthday, links, pronouns, is_private"
+      )
       .eq("id", currentUserId)
       .single();
     profile = data ?? null;
   }
 
+  // Fetch profile stats via RPC
+  type ProfileStats = {
+    followers_count: number;
+    following_count: number;
+    posts_count: number;
+    likes_received: number;
+    last_post_at: string | null;
+  };
+  const { data: statsRow } = await supabase
+    .rpc("get_profile_stats", { target: currentUserId })
+    .maybeSingle();
+  const stats = (statsRow ?? null) as ProfileStats | null;
+
+  // Fetch recent posts and their stats
+  const { data: postsData } = await supabase
+    .from("v_post_stats")
+    .select("post_id, author_id, likes_count, comments_count, created_at")
+    .eq("author_id", currentUserId)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  let likedIds: string[] = [];
+  if (postsData && postsData.length > 0) {
+    const { data: likedRows } = await supabase
+      .from("post_likes")
+      .select("post_id")
+      .eq("user_id", currentUserId)
+      .in(
+        "post_id",
+        postsData.map((p) => p.post_id)
+      );
+    likedIds = ((likedRows ?? []) as { post_id: string }[]).map((r) => r.post_id);
+  }
+
   return (
-    <div className="max-w-xl">
-      <h1 className="text-xl font-semibold mb-4">My Profile</h1>
-      <ProfileForm initialProfile={profile ?? { id: currentUserId, full_name: "", username: null, bio: null, avatar_url: null }} />
+    <div className="grid gap-6 md:grid-cols-[240px_1fr]">
+      <aside className="space-y-4">
+        <h2 className="text-sm font-medium text-muted-foreground">Avatar</h2>
+        <AvatarUploader userId={currentUserId} initialUrl={profile?.avatar_url ?? null} />
+      </aside>
+      <div className="max-w-2xl">
+        <h1 className="text-xl font-semibold mb-4">My Profile</h1>
+        <ProfileTabs
+          userId={currentUserId}
+          profile={{
+            id: currentUserId,
+            full_name: profile?.full_name ?? null,
+            username: profile?.username ?? null,
+            bio: profile?.bio ?? null,
+            avatar_url: profile?.avatar_url ?? null,
+            location: profile?.location ?? null,
+            website: profile?.website ?? null,
+            birthday: profile?.birthday ?? null,
+            links: (profile?.links as Record<string, string> | null) ?? null,
+            pronouns: profile?.pronouns ?? null,
+            is_private: (profile?.is_private as boolean | null) ?? null,
+          }}
+          initialStats={stats ? {
+            followers_count: stats.followers_count ?? 0,
+            following_count: stats.following_count ?? 0,
+            posts_count: stats.posts_count ?? 0,
+            likes_received: stats.likes_received ?? 0,
+          } : null}
+          showFollowButton={false}
+          initialPosts={postsData ?? []}
+          initialLikedPostIds={likedIds}
+        />
+      </div>
     </div>
   );
 }

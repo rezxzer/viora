@@ -20,7 +20,6 @@ export default function ThemeToggle() {
     } else {
       root.setAttribute("data-theme", saved);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function apply(next: typeof mode) {

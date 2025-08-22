@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ThemeToggle from "./ThemeToggle";
 import AuthStatus from "@/components/auth/AuthStatus";
+import NotificationBell from "@/components/auth/NotificationBell";
 
 /**
  * Topbar with brand, search placeholder, theme toggle, and user controls.
@@ -19,6 +20,7 @@ export default function Topbar() {
           <Input className="pl-9" placeholder="Search... (placeholder)" aria-label="Search" />
         </div>
         <ThemeToggle />
+        <NotificationBell />
         <AuthStatus />
       </div>
     </header>

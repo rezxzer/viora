@@ -14,6 +14,9 @@ begin
 end;
 $$;
 
+-- lock down function search_path for safety/linter
+alter function public.set_updated_at() set search_path = public, pg_temp;
+
 -- 2) profiles table (idempotent)
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,

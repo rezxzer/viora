@@ -71,6 +71,12 @@ export default function SignInForm({ message }: { message?: string }) {
     toast.success("Signed in");
     router.replace("/feed");
     router.refresh();
+    // Fallback hard navigation if router did not transition yet
+    setTimeout(() => {
+      if (typeof window !== "undefined" && window.location.pathname !== "/feed") {
+        window.location.href = "/feed";
+      }
+    }, 200);
   };
 
   return (

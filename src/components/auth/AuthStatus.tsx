@@ -3,32 +3,54 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { supabaseBrowserClient } from "@/lib/supabase-client";
 import { toast } from "sonner";
 
 type SessionState = {
   userId: string | null;
+  avatarUrl: string | null;
 };
 
 export default function AuthStatus() {
   const router = useRouter();
-  const [session, setSession] = useState<SessionState>({ userId: null });
+  const [session, setSession] = useState<SessionState>({ userId: null, avatarUrl: null });
 
   useEffect(() => {
     const supabase = supabaseBrowserClient();
 
-    supabase.auth.getSession().then(({ data }) => {
-      setSession({ userId: data.session?.user?.id ?? null });
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      const uid = data.session?.user?.id ?? null;
+      let url: string | null = null;
+      if (uid) {
+        const { data: p } = await supabase.from("profiles").select("avatar_url").eq("id", uid).maybeSingle();
+        url = (p?.avatar_url as string | null) ?? null;
+      }
+      setSession({ userId: uid, avatarUrl: url });
+    })();
+
+    const { data: sub } = supabase.auth.onAuthStateChange(async (_: unknown, currentSession: { user: { id: string } | null } | null) => {
+      const uid = currentSession?.user?.id ?? null;
+      let url: string | null = null;
+      if (uid) {
+        const { data: p } = await supabase.from("profiles").select("avatar_url").eq("id", uid).maybeSingle();
+        url = (p?.avatar_url as string | null) ?? null;
+      }
+      setSession({ userId: uid, avatarUrl: url });
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, currentSession) => {
-      setSession({ userId: currentSession?.user?.id ?? null });
-    });
+    const handler = async () => {
+      if (!session.userId) return;
+      const { data: p } = await supabase.from("profiles").select("avatar_url").eq("id", session.userId).maybeSingle();
+      setSession((s) => ({ ...s, avatarUrl: (p?.avatar_url as string | null) ?? null }));
+    };
+    window.addEventListener("viora:avatar-updated", handler);
 
     return () => {
       sub.subscription.unsubscribe();
+      window.removeEventListener("viora:avatar-updated", handler);
     };
   }, []);
 
@@ -55,7 +77,11 @@ export default function AuthStatus() {
     <div className="flex items-center gap-3">
       <Link href="/profile" className="flex items-center gap-2">
         <Avatar>
-          <AvatarFallback>U</AvatarFallback>
+          {session.avatarUrl ? (
+            <AvatarImage src={session.avatarUrl} alt="avatar" />
+          ) : (
+            <AvatarFallback>U</AvatarFallback>
+          )}
         </Avatar>
       </Link>
       <Button size="sm" variant="outline" onClick={handleSignOut}>

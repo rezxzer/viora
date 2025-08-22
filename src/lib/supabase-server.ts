@@ -1,12 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
+import { cookies } from "next/headers";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export function createSupabaseServerClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-  // Note: For MVP scaffold we return a plain server client without cookie wiring.
-  // We will switch to @supabase/ssr in the Auth task when middleware is added.
-  return createClient(url, anonKey);
+  // Pass the cookies function reference so the helper can await it as needed (Next.js 15 dynamic APIs)
+  return createServerComponentClient({ cookies });
 }
 
 

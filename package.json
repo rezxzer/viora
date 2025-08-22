@@ -6,7 +6,13 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:exec:profiles:dev": "npx --yes supabase db execute --file ./.sql/profiles.sql --db-url %DEV_DB_URL%",
+    "db:exec:profiles:prod": "npx --yes supabase db execute --file ./.sql/profiles.sql --db-url %PROD_DB_URL%",
+    "db:exec:stats:dev": "npx --yes supabase db execute --file ./.sql/stats.sql --db-url %DEV_DB_URL%",
+    "db:exec:stats:prod": "npx --yes supabase db execute --file ./.sql/stats.sql --db-url %PROD_DB_URL%",
+    "db:exec:all:dev": "pnpm db:exec:profiles:dev && pnpm db:exec:stats:dev",
+    "db:exec:all:prod": "pnpm db:exec:profiles:prod && pnpm db:exec:stats:prod"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -29,6 +35,7 @@
     "react-dom": "19.1.0",
     "react-hook-form": "^7.62.0",
     "sonner": "^2.0.7",
+    "stripe": "^18.4.0",
     "tailwind-merge": "^3.3.1",
     "zod": "^4.0.17"
   },
