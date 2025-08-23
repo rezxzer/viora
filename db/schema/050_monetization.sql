@@ -91,7 +91,8 @@ CREATE POLICY subscription_plans_delete_own ON public.subscription_plans
 -- These views provide zeros when no ledger/payments tables exist yet.
 -- =====================
 
-CREATE OR REPLACE VIEW public.v_creator_earnings AS
+DROP VIEW IF EXISTS public.v_creator_earnings CASCADE;
+CREATE VIEW public.v_creator_earnings AS
 SELECT
   cs.user_id AS creator_id,
   0::int AS total_gross_cents,
@@ -99,7 +100,8 @@ SELECT
   0::int AS total_platform_cents
 FROM public.creator_settings cs;
 
-CREATE OR REPLACE VIEW public.v_creator_subscribers AS
+DROP VIEW IF EXISTS public.v_creator_subscribers CASCADE;
+CREATE VIEW public.v_creator_subscribers AS
 SELECT
   cs.user_id AS creator_id,
   0::int AS active_subscribers
