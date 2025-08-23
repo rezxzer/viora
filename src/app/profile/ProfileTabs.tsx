@@ -290,9 +290,7 @@ export default function ProfileTabs({
           {!readOnly && <TabsTrigger value="privacy">Privacy</TabsTrigger>}
           {!readOnly && <TabsTrigger value="monetization">Monetization</TabsTrigger>}
 
-          <TabsTrigger value="account">Account</TabsTrigger>
-          <TabsTrigger value="privacy">Privacy</TabsTrigger>
-          <TabsTrigger value="monetization">Monetization</TabsTrigger>
+          {/* Duplicate triggers removed; owner-only triggers are rendered below when !readOnly */}
         </TabsList>
       </div>
 

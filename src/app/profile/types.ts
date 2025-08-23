@@ -9,5 +9,5 @@ export type ProfileData = {
   birthday: string | null // ISO date string
   links: Record<string, string> | null
   pronouns: string | null
-  is_private: boolean | null
+  privacy_level?: 'public' | 'followers_only' | 'verified_only' | null
 }

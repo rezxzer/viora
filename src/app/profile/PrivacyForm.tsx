@@ -15,7 +15,7 @@ type Props = {
 
 export default function PrivacyForm({ userId, initial }: Props) {
   const supabase = supabaseBrowserClient()
-  const [privacy, setPrivacy] = useState<string>('public')
+  const [privacy, setPrivacy] = useState<string>(initial.privacy_level || 'public')
   const [downloading, setDownloading] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [blocked, setBlocked] = useState<Array<{ blocked_id: string; expires_at: string | null }>>(

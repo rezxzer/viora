@@ -13,7 +13,7 @@ export default async function ProfilePage() {
     supabase
       .from('profiles')
       .select(
-        'id, full_name, username, bio, avatar_url, location, website, birthday, links, pronouns, is_private'
+        'id, full_name, username, bio, avatar_url, location, website, birthday, links, pronouns, privacy_level'
       )
       .maybeSingle(),
   ])
@@ -29,7 +29,7 @@ export default async function ProfilePage() {
     const { data } = await supabase
       .from('profiles')
       .select(
-        'id, full_name, username, bio, avatar_url, location, website, birthday, links, pronouns, is_private'
+        'id, full_name, username, bio, avatar_url, location, website, birthday, links, pronouns, privacy_level'
       )
       .eq('id', currentUserId)
       .single()
@@ -91,7 +91,7 @@ export default async function ProfilePage() {
             birthday: profile?.birthday ?? null,
             links: (profile?.links as Record<string, string> | null) ?? null,
             pronouns: profile?.pronouns ?? null,
-            is_private: (profile?.is_private as boolean | null) ?? null,
+            privacy_level: (profile?.privacy_level as any) ?? null,
           }}
           initialStats={
             stats
