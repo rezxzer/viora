@@ -60,7 +60,7 @@ export default async function PublicProfilePage({ params }: Params) {
   }
 
   const { data: posts } = await supabase
-    .from('v_post_stats')
+    .from('v_post_stats_public')
     .select('post_id, author_id, likes_count, comments_count, created_at')
     .eq('author_id', profile.id)
     .order('created_at', { ascending: false })
@@ -110,7 +110,7 @@ export default async function PublicProfilePage({ params }: Params) {
             birthday: null,
             links: null,
             pronouns: null,
-            is_private: null,
+            privacy_level: null,
           }}
           initialStats={
             stats
@@ -129,6 +129,7 @@ export default async function PublicProfilePage({ params }: Params) {
           initialLikedPostIds={likedIds}
           readOnly={true}
           postsAuthorId={profile.id}
+          viewerId={viewerId}
         />
       </div>
     </div>

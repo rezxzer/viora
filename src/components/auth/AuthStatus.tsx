@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 import { Button } from '@/components/ui/button'
 import { supabaseBrowserClient } from '@/lib/supabase-client'
 import { toast } from 'sonner'
@@ -90,13 +90,7 @@ export default function AuthStatus() {
   return (
     <div className="flex items-center gap-3">
       <Link href="/profile" className="flex items-center gap-2">
-        <Avatar>
-          {session.avatarUrl ? (
-            <AvatarImage src={session.avatarUrl} alt="avatar" />
-          ) : (
-            <AvatarFallback>U</AvatarFallback>
-          )}
-        </Avatar>
+        <UserAvatar src={session.avatarUrl} alt="avatar" fallback="U" />
       </Link>
       <Button size="sm" variant="outline" onClick={handleSignOut}>
         Sign Out

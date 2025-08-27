@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 // Use relative path to avoid occasional TS path alias resolution glitches in editors
 import PostCardLite from '../../components/post/PostCardLite'
+import Composer from '../../components/post/Composer'
 import { useEffect, useState, useTransition } from 'react'
 import { supabaseBrowserClient } from '@/lib/supabase-client'
 import { toast } from 'sonner'
@@ -15,6 +16,7 @@ import type { ProfileData } from './types'
 import MonetizationForm from './MonetizationForm'
 import PostEditDialog from '../../components/post/PostEditDialog'
 import CommentsDialog from '../../components/post/CommentsDialog'
+import FollowersDialog from '../../components/profile/FollowersDialog'
 
 // ProfileData type is centralized in ./types to avoid circular imports and editor glitches
 
@@ -42,6 +44,7 @@ type Props = {
   }>
   initialLikedPostIds?: string[]
   postsAuthorId?: string // whose posts to list (defaults to userId if not provided)
+  viewerId?: string | null // current user's ID for follow/unfollow actions
 }
 
 export default function ProfileTabs({
@@ -55,6 +58,7 @@ export default function ProfileTabs({
   initialPosts = [],
   initialLikedPostIds = [],
   postsAuthorId,
+  viewerId = null,
 }: Props) {
   const [stats, setStats] = useState(initialStats)
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing)
@@ -69,6 +73,8 @@ export default function ProfileTabs({
   } | null>(null)
   const [commentsOpen, setCommentsOpen] = useState(false)
   const [commentsPostId, setCommentsPostId] = useState<string | null>(null)
+  const [followersOpen, setFollowersOpen] = useState(false)
+  const [followingOpen, setFollowingOpen] = useState(false)
 
   const canFollow = showFollowButton && !!targetUserId && targetUserId !== userId
   const authorIdForPosts = postsAuthorId || userId
@@ -104,6 +110,8 @@ export default function ProfileTabs({
             setIsFollowing(false)
             setStats((s) => (s ? { ...s, followers_count: Math.max(0, s.followers_count - 1) } : s))
             toast.error(error.message)
+          } else {
+            toast.success('Followed')
           }
         }
       } catch (e) {
@@ -129,11 +137,19 @@ export default function ProfileTabs({
         .order('created_at', { ascending: false })
         .limit(50)
       if (error) throw error
-      const rows = (data as unknown as Array<any>) || []
+      type Row = {
+        id: string
+        author_id: string
+        created_at: string
+        content: string | null
+        image_url: string | null
+      }
+      const rows = (data as Row[]) || []
       // Preserve existing counts where available
       const countsMap = new Map<string, { likes_count: number; comments_count: number }>()
-      ;[...myPosts, ...initialPosts].forEach((p: any) => {
-        countsMap.set(p.post_id || p.id, {
+      ;[...myPosts, ...initialPosts].forEach((p) => {
+        const key = p.post_id
+        countsMap.set(key, {
           likes_count: p.likes_count ?? 0,
           comments_count: p.comments_count ?? 0,
         })
@@ -185,7 +201,9 @@ export default function ProfileTabs({
   }
 
   const onEditPost = (postId: string) => {
-    const row = myPosts.find((p) => p.post_id === postId) as any
+    const row = myPosts.find((p) => p.post_id === postId) as unknown as
+      | { content: string | null; image_url: string | null }
+      | undefined
     setEditing({ id: postId, content: row?.content ?? null, imageUrl: row?.image_url ?? null })
     setEditOpen(true)
   }
@@ -243,9 +261,23 @@ export default function ProfileTabs({
                 {isFollowing ? 'Unfollow' : 'Follow'}
               </Button>
             ) : !readOnly ? (
-              <Button variant="secondary" onClick={() => setTab('profile')}>
-                Edit profile
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="secondary" onClick={() => setTab('profile')}>
+                  Edit profile
+                </Button>
+                <Button
+                  onClick={() => {
+                    setTab('posts')
+                    // Smooth scroll to the composer area
+                    try {
+                      const el = document.getElementById('profile-composer')
+                      el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    } catch {}
+                  }}
+                >
+                  Upload media
+                </Button>
+              </div>
             ) : null}
           </div>
         </div>
@@ -254,14 +286,20 @@ export default function ProfileTabs({
         <div className="flex flex-wrap gap-3 border-t px-4 py-3">
           {stats ? (
             <>
-              <div className="inline-flex items-center gap-2 rounded-full border bg-elev px-3 py-1 text-xs">
+              <button
+                onClick={() => setFollowersOpen(true)}
+                className="inline-flex items-center gap-2 rounded-full border bg-elev px-3 py-1 text-xs hover:bg-elev/80 transition-colors cursor-pointer"
+              >
                 <span className="font-medium">{stats.followers_count}</span>
                 <span className="text-muted-foreground">Followers</span>
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-full border bg-elev px-3 py-1 text-xs">
+              </button>
+              <button
+                onClick={() => setFollowingOpen(true)}
+                className="inline-flex items-center gap-2 rounded-full border bg-elev px-3 py-1 text-xs hover:bg-elev/80 transition-colors cursor-pointer"
+              >
                 <span className="font-medium">{stats.following_count}</span>
                 <span className="text-muted-foreground">Following</span>
-              </div>
+              </button>
               <div className="inline-flex items-center gap-2 rounded-full border bg-elev px-3 py-1 text-xs">
                 <span className="font-medium">{stats.posts_count}</span>
                 <span className="text-muted-foreground">Posts</span>
@@ -312,6 +350,11 @@ export default function ProfileTabs({
           userId={userId}
           onSaved={reloadPosts}
         />
+        {!readOnly && (
+          <div id="profile-composer">
+            <Composer userId={userId} avatarUrl={profile.avatar_url} />
+          </div>
+        )}
         {myPosts.length > 0 ? (
           <div className="space-y-4 mb-8">
             {myPosts.map((p) => (
@@ -320,8 +363,8 @@ export default function ProfileTabs({
                   postId={p.post_id}
                   authorId={p.author_id}
                   createdAt={p.created_at}
-                  content={(p as any).content}
-                  imageUrl={(p as any).image_url}
+                  content={(p as { content?: string | null }).content}
+                  imageUrl={(p as { image_url?: string | null }).image_url}
                   initialLikesCount={p.likes_count}
                   initialCommentsCount={p.comments_count}
                   initiallyLiked={initialLikedPostIds.includes(p.post_id)}
@@ -378,6 +421,22 @@ export default function ProfileTabs({
           </TabsContent>
         </>
       )}
+
+      {/* Followers/Following Dialogs */}
+      <FollowersDialog
+        userId={userId}
+        open={followersOpen}
+        onOpenChange={setFollowersOpen}
+        type="followers"
+        viewerId={viewerId}
+      />
+      <FollowersDialog
+        userId={userId}
+        open={followingOpen}
+        onOpenChange={setFollowingOpen}
+        type="following"
+        viewerId={viewerId}
+      />
     </Tabs>
   )
 }

@@ -43,36 +43,48 @@ export default function SignUpPage() {
   const onSubmit = async (values: z.infer<typeof schema>) => {
     setLoading(true)
     const supabase = supabaseBrowserClient()
+    try {
+      const { data: signUpData, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+      })
+      if (error) throw error
 
-    const { data: signUpData, error } = await supabase.auth.signUp({
-      email: values.email,
-      password: values.password,
-    })
-    if (error) {
+      // If email confirmations are enabled, session may be null until confirmed
+      if (!signUpData.session) {
+        toast.success('Check your email to confirm your account')
+        setLoading(false)
+        router.push('/sign-in')
+        return
+      }
+
+      // Create profile row (idempotent)
+      const { data: userData } = await supabase.auth.getUser()
+      const userId = userData.user?.id ?? signUpData.user?.id ?? null
+      if (userId) {
+        const { error: upsertErr } = await supabase.from('profiles').upsert(
+          {
+            id: userId,
+            full_name: '',
+            username: null,
+            bio: null,
+            avatar_url: null,
+          },
+          { onConflict: 'id', ignoreDuplicates: true }
+        )
+        if (upsertErr) {
+          // Not fatal for signup UX; show info and continue
+          toast.message('Profile will finish setup after first sign-in')
+        }
+      }
+      toast.success('Account created')
+      router.push('/feed')
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Sign up failed'
+      toast.error(msg)
+    } finally {
       setLoading(false)
-      toast.error(error.message)
-      return
     }
-    // Try to create profile row (idempotent via upsert)
-    // Since email confirmations are disabled, the user/session should be available immediately.
-    // Fallback to signUpData.user if getUser is not yet populated.
-    const { data: userData } = await supabase.auth.getUser()
-    const userId = userData.user?.id ?? signUpData.user?.id ?? null
-    if (userId) {
-      await supabase.from('profiles').upsert(
-        {
-          id: userId,
-          full_name: '',
-          username: null,
-          bio: null,
-          avatar_url: null,
-        },
-        { onConflict: 'id', ignoreDuplicates: true }
-      )
-    }
-    setLoading(false)
-    toast.success('Account created')
-    router.push('/feed')
   }
 
   return (

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { supabaseBrowserClient } from '@/lib/supabase-client'
 import { toast } from 'sonner'
 import type { ProfileData } from './types'

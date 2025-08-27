@@ -12,7 +12,13 @@ export default function ThemeToggle() {
   const [mode, setMode] = useState<'system' | 'light' | 'dark'>('system')
 
   useEffect(() => {
-    const saved = (localStorage.getItem('viora-theme') as typeof mode) || 'system'
+    const saved = (() => {
+      try {
+        return (localStorage.getItem('viora-theme') as typeof mode) || 'system'
+      } catch {
+        return 'system'
+      }
+    })()
     setMode(saved)
     const root = document.documentElement
     if (saved === 'system') {
@@ -35,7 +41,11 @@ export default function ThemeToggle() {
     const order: (typeof mode)[] = ['system', 'light', 'dark']
     const next = order[(order.indexOf(mode) + 1) % order.length]
     setMode(next)
-    localStorage.setItem('viora-theme', next)
+    try {
+      localStorage.setItem('viora-theme', next)
+    } catch {
+      // Storage access denied, continue without saving
+    }
     apply(next)
   }
 

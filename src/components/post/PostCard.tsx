@@ -3,7 +3,7 @@
 import { Card } from '@/components/ui/card'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 import { MessageCircle, Share2, ThumbsUp, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useState, useTransition } from 'react'
 import { supabaseBrowserClient } from '@/lib/supabase-client'
@@ -246,26 +246,17 @@ export default function PostCard({
   return (
     <Card className="p-4">
       <div className="flex gap-3">
-        <Link href={authorUsername ? `/u/${authorUsername}` : `#`} className="shrink-0">
-          <Avatar>
-            {authorAvatarUrl ? (
-              <AvatarImage src={authorAvatarUrl} alt="avatar" />
-            ) : (
-              <AvatarFallback>U</AvatarFallback>
-            )}
-          </Avatar>
-        </Link>
+        <a href={authorUsername ? `/u/${authorUsername}` : `#`} className="shrink-0">
+          <UserAvatar src={authorAvatarUrl} alt="avatar" fallback="U" />
+        </a>
         <div className="flex-1 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm">
               <span className="font-medium">{authorFullName || authorUsername || 'Unknown'}</span>
               {authorUsername ? (
-                <Link
-                  href={`/u/${authorUsername}`}
-                  className="text-muted-foreground hover:underline"
-                >
+                <a href={`/u/${authorUsername}`} className="text-muted-foreground hover:underline">
                   @{authorUsername}
-                </Link>
+                </a>
               ) : (
                 <span className="text-muted-foreground">@user</span>
               )}
@@ -325,13 +316,12 @@ export default function PostCard({
             <div className="space-y-2 pt-1">
               {recentComments.map((c) => (
                 <div key={c.id} className="flex items-start gap-2 text-sm">
-                  <Avatar className="h-6 w-6">
-                    {c.author.avatar_url ? (
-                      <AvatarImage src={c.author.avatar_url} alt="avatar" />
-                    ) : (
-                      <AvatarFallback>U</AvatarFallback>
-                    )}
-                  </Avatar>
+                  <UserAvatar
+                    src={c.author.avatar_url}
+                    alt="avatar"
+                    fallback="U"
+                    className="h-6 w-6"
+                  />
                   <div className="flex-1">
                     <div className="text-xs text-muted-foreground">
                       <span className="font-medium text-foreground">{c.author.name}</span> ·{' '}

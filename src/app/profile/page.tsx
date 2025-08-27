@@ -91,7 +91,10 @@ export default async function ProfilePage() {
             birthday: profile?.birthday ?? null,
             links: (profile?.links as Record<string, string> | null) ?? null,
             pronouns: profile?.pronouns ?? null,
-            privacy_level: (profile?.privacy_level as any) ?? null,
+            privacy_level: (() => {
+              const v = (profile?.privacy_level as unknown as string | null) ?? null
+              return v === 'public' || v === 'followers_only' || v === 'verified_only' ? v : null
+            })(),
           }}
           initialStats={
             stats
@@ -106,6 +109,7 @@ export default async function ProfilePage() {
           showFollowButton={false}
           initialPosts={postsData ?? []}
           initialLikedPostIds={likedIds}
+          viewerId={currentUserId}
         />
       </div>
     </div>

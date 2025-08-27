@@ -1,6 +1,6 @@
 'use client'
 
-import { Home, Newspaper, MessageSquare, User, Settings, Crown, Menu } from 'lucide-react'
+import { Home, Newspaper, User, Settings, Crown, Menu, Play, Radio } from 'lucide-react'
 import NavItem from './NavItem'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -16,7 +16,8 @@ export default function Sidebar() {
     <nav className="flex flex-col gap-1">
       <NavItem href="/" icon={<Home />} label="Home" onClick={() => setOpen(false)} />
       <NavItem href="/feed" icon={<Newspaper />} label="Feed" onClick={() => setOpen(false)} />
-      <NavItem href="/chat" icon={<MessageSquare />} label="Chat" onClick={() => setOpen(false)} />
+      <NavItem href="/watch" icon={<Play />} label="Watch" onClick={() => setOpen(false)} />
+      <NavItem href="/streams" icon={<Radio />} label="Streams" onClick={() => setOpen(false)} />
       <NavItem href="/profile" icon={<User />} label="Profile" onClick={() => setOpen(false)} />
       <NavItem
         href="/settings"

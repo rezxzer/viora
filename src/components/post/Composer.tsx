@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 import { supabaseBrowserClient } from '@/lib/supabase-client'
 import { toast } from 'sonner'
 
@@ -69,7 +69,7 @@ export default function Composer({ userId, avatarUrl }: Props) {
         // First create the post
         const { data: created, error: postErr } = await supabase
           .from('posts')
-          .insert({ author_id: userId, content: text || null, image_url: null, is_public: true })
+          .insert({ author_id: userId, content: text || null, image_url: null })
           .select('id')
           .single()
         if (postErr) throw postErr
@@ -142,13 +142,7 @@ export default function Composer({ userId, avatarUrl }: Props) {
             }
           }}
         >
-          <Avatar>
-            {avatarUrl ? (
-              <AvatarImage src={avatarUrl} alt="avatar" />
-            ) : (
-              <AvatarFallback>U</AvatarFallback>
-            )}
-          </Avatar>
+          <UserAvatar src={avatarUrl} alt="avatar" fallback="U" />
           <div className="flex-1">
             <label htmlFor="composer" className="sr-only">
               What’s happening?

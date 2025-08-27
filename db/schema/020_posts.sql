@@ -1,3 +1,56 @@
+-- Posts base table + RLS
+
+create extension if not exists pgcrypto;
+
+create table if not exists public.posts (
+  id uuid primary key default gen_random_uuid(),
+  author_id uuid not null references auth.users(id) on delete cascade,
+  content text,
+  image_url text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists idx_posts_author on public.posts(author_id);
+create index if not exists idx_posts_created_at on public.posts(created_at desc);
+
+create or replace function public.tg_posts_touch_updated_at()
+returns trigger language plpgsql as $$
+begin
+  new.updated_at := now();
+  return new;
+end$$;
+
+do $$
+begin
+  if not exists (select 1 from pg_trigger where tgname='tg_posts_touch') then
+    create trigger tg_posts_touch
+      before update on public.posts
+      for each row execute function public.tg_posts_touch_updated_at();
+  end if;
+end$$;
+
+alter table public.posts enable row level security;
+
+-- Public can read posts
+drop policy if exists posts_select_public on public.posts;
+create policy posts_select_public on public.posts
+  for select using (true);
+
+-- Only author can insert/update/delete own posts; admin bypass
+drop policy if exists posts_insert_self on public.posts;
+create policy posts_insert_self on public.posts
+  for insert with check (auth.uid() = author_id);
+
+drop policy if exists posts_update_self on public.posts;
+create policy posts_update_self on public.posts
+  for update using (auth.uid() = author_id or public.is_admin())
+  with check (auth.uid() = author_id or public.is_admin());
+
+drop policy if exists posts_delete_self on public.posts;
+create policy posts_delete_self on public.posts
+  for delete using (auth.uid() = author_id or public.is_admin());
+
 -- Posts domain: posts, post_likes, comments (idempotent)
 
 -- Helpful for gen_random_uuid()

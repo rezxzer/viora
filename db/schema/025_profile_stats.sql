@@ -47,4 +47,20 @@ $$;
 
 ALTER FUNCTION public.get_profile_stats(uuid) SET search_path = public, pg_temp;
 
+-- Harden the view execution context (idempotent)
+-- Run the view with invoker's privileges and enable barrier
+ALTER VIEW public.v_post_stats SET (security_invoker = true);
+ALTER VIEW public.v_post_stats SET (security_barrier = true);
+
+-- Optional: create a security barrier view that filters posts by author privacy
+DROP VIEW IF EXISTS public.v_post_stats_public CASCADE;
+CREATE VIEW public.v_post_stats_public AS
+SELECT s.*
+FROM public.v_post_stats s
+JOIN public.profiles pr ON pr.id = s.author_id
+WHERE pr.privacy_level = 'public';
+
+ALTER VIEW public.v_post_stats_public SET (security_invoker = true);
+ALTER VIEW public.v_post_stats_public SET (security_barrier = true);
+
 

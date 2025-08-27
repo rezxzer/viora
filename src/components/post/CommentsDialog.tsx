@@ -4,9 +4,10 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 import { supabaseBrowserClient } from '@/lib/supabase-client'
 import { toast } from 'sonner'
+import { fetchReactionStats } from '@/lib/reactions'
 
 type CommentRow = {
   id: string
@@ -81,7 +82,7 @@ export default function CommentsDialog({
     setLoading(true)
     try {
       const { data, error } = await supabase
-        .from('post_comments')
+        .from('comments')
         .select('id, post_id, author_id, content, created_at, parent_id')
         .eq('post_id', postId)
         .order('created_at', { ascending: true })
@@ -119,50 +120,64 @@ export default function CommentsDialog({
 
       // Load reactions for these comments
       const commentIds = list.map((r) => r.id)
-      if (commentIds.length) {
-        const { data: reacts } = await supabase
-          .from('post_comment_reactions')
-          .select('comment_id, emoji, user_id')
-          .in('comment_id', commentIds)
-        const map = new Map<string, ReactionState>()
-        ;(reacts ?? []).forEach((r: { comment_id: string; emoji: string; user_id: string }) => {
-          const state = map.get(r.comment_id) ?? { counts: {}, mine: new Set<string>() }
-          state.counts[r.emoji] = (state.counts[r.emoji] ?? 0) + 1
-          if (viewerId && r.user_id === viewerId) state.mine.add(r.emoji)
-          map.set(r.comment_id, state)
-        })
-        setReactions(map)
-      } else {
+      try {
+        if (commentIds.length) {
+          const { data: reacts } = await supabase
+            .from('post_comment_reactions')
+            .select('comment_id, emoji, user_id')
+            .in('comment_id', commentIds)
+          const map = new Map<string, ReactionState>()
+          ;(reacts ?? []).forEach((r: { comment_id: string; emoji: string; user_id: string }) => {
+            const state = map.get(r.comment_id) ?? { counts: {}, mine: new Set<string>() }
+            state.counts[r.emoji] = (state.counts[r.emoji] ?? 0) + 1
+            if (viewerId && r.user_id === viewerId) state.mine.add(r.emoji)
+            map.set(r.comment_id, state)
+          })
+          setReactions(map)
+        } else {
+          setReactions(new Map())
+        }
+      } catch {
         setReactions(new Map())
       }
 
       // Load paid stats and price
-      if (commentIds.length) {
-        const { data: stats } = await supabase
-          .from('v_comment_paid_reaction_stats')
-          .select('comment_id, viora_count, viora_amount_cents')
-          .in('comment_id', commentIds)
-        const sMap = new Map<string, { viora_count: number; viora_amount_cents: number }>()
-        ;(stats ?? []).forEach(
-          (s: { comment_id: string; viora_count: number; viora_amount_cents: number }) => {
-            sMap.set(s.comment_id, {
-              viora_count: s.viora_count ?? 0,
-              viora_amount_cents: s.viora_amount_cents ?? 0,
-            })
-          }
-        )
-        setPaidStats(sMap)
-      } else {
+      try {
+        if (commentIds.length) {
+          console.log('Loading reaction stats for comment IDs:', commentIds)
+          const stats = await fetchReactionStats(commentIds)
+          console.log('Received reaction stats:', stats)
+
+          const sMap = new Map<string, { viora_count: number; viora_amount_cents: number }>()
+          ;(stats ?? []).forEach(
+            (s: { comment_id: string; viora_count: number; viora_amount_cents: number }) => {
+              sMap.set(s.comment_id, {
+                viora_count: s.viora_count ?? 0,
+                viora_amount_cents: s.viora_amount_cents ?? 0,
+              })
+            }
+          )
+          setPaidStats(sMap)
+          console.log('Set paid stats map:', sMap)
+        } else {
+          setPaidStats(new Map())
+        }
+      } catch (error) {
+        console.error('Error loading reaction stats:', error)
         setPaidStats(new Map())
       }
 
-      if (vioraPriceCents === null) {
-        const { data: rt } = await supabase
-          .from('reaction_types')
-          .select('code, default_price_cents')
-          .eq('code', 'VIORA')
-          .maybeSingle()
-        setVioraPriceCents((rt?.default_price_cents ?? 100) as number)
+      try {
+        if (vioraPriceCents === null) {
+          const { data: rt } = await supabase
+            .from('reaction_types')
+            .select('code, default_price_cents')
+            .eq('code', 'VIORA')
+            .maybeSingle()
+          setVioraPriceCents((rt?.default_price_cents ?? 100) as number)
+        }
+      } catch {
+        setVioraPriceCents(100)
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to load comments'
@@ -180,6 +195,21 @@ export default function CommentsDialog({
       void load()
     }
   }, [open])
+
+  // Reload when postId changes
+  useEffect(() => {
+    // reset cached state and ref
+    firstLoadRef.current = false
+    setRows([])
+    setProfiles(new Map())
+    setReactions(new Map())
+    setPaidStats(new Map())
+    if (open) {
+      firstLoadRef.current = true
+      void load()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postId])
 
   // Check if the current viewer is blocked by the post author (via RPC fallback-friendly)
   useEffect(() => {
@@ -234,7 +264,7 @@ export default function CommentsDialog({
       // Comments CRUD
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'post_comments', filter: `post_id=eq.${postId}` },
+        { event: '*', schema: 'public', table: 'comments', filter: `post_id=eq.${postId}` },
         (payload) => {
           if (payload.eventType === 'INSERT') {
             const row = payload.new as CommentRow
@@ -389,7 +419,7 @@ export default function CommentsDialog({
         })
 
         const { data, error } = await supabase
-          .from('post_comments')
+          .from('comments')
           .insert({
             post_id: postId,
             author_id: viewerId,
@@ -569,7 +599,7 @@ export default function CommentsDialog({
     if (!newContent) return
     try {
       const { error } = await supabase
-        .from('post_comments')
+        .from('comments')
         .update({ content: newContent })
         .eq('id', editing.id)
       if (error) throw error
@@ -587,7 +617,7 @@ export default function CommentsDialog({
     const ok = typeof window !== 'undefined' ? window.confirm('Delete this comment?') : true
     if (!ok) return
     try {
-      const { error } = await supabase.from('post_comments').delete().eq('id', row.id)
+      const { error } = await supabase.from('comments').delete().eq('id', row.id)
       if (error) throw error
       setRows((prev) => prev.filter((r) => r.id !== row.id))
       toast.success('Deleted')
@@ -623,13 +653,12 @@ export default function CommentsDialog({
           className="flex items-start gap-2 py-2"
           style={{ marginLeft: depth ? 28 : 0 }}
         >
-          <Avatar className="h-8 w-8">
-            {p?.avatar_url ? (
-              <AvatarImage src={p.avatar_url} alt="avatar" />
-            ) : (
-              <AvatarFallback>U</AvatarFallback>
-            )}
-          </Avatar>
+          <UserAvatar
+            src={p?.avatar_url}
+            alt="avatar"
+            fallback={p?.full_name || p?.username || 'User'}
+            className="h-8 w-8"
+          />
           <div className="flex-1 min-w-0">
             <div className="text-xs text-muted-foreground">
               <span className="font-medium text-foreground">{name}</span> ·{' '}

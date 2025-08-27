@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabaseBrowserClient } from '@/lib/supabase-client'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 import { toast } from 'sonner'
 
 type AvatarUploaderProps = {
@@ -109,13 +109,7 @@ export default function AvatarUploader({ userId, initialUrl }: AvatarUploaderPro
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-3">
-        <Avatar className="size-16">
-          {preview ? (
-            <AvatarImage src={preview} alt="Avatar preview" />
-          ) : (
-            <AvatarFallback>U</AvatarFallback>
-          )}
-        </Avatar>
+        <UserAvatar src={preview} alt="Avatar preview" fallback="U" className="size-16" />
         <div className="flex flex-col gap-2">
           <input
             ref={fileInputRef}

@@ -12,7 +12,7 @@ export default async function FeedPage({
 }: {
   searchParams?: Promise<{ after?: string }>
 }) {
-  const supabase = createSupabaseServerClient()
+  const supabase = await createSupabaseServerClient()
   const {
     data: { session },
   } = await supabase.auth.getSession()
@@ -23,19 +23,57 @@ export default async function FeedPage({
   const q = searchParams ? await searchParams : undefined
   const after = q?.after ?? null
 
-  // Fetch latest posts
+  // Fetch latest posts from public profiles only
   let query = supabase
-    .from('posts')
-    .select('id, author_id, content, image_url, created_at, is_public')
-    .eq('is_public', true)
+    .from('v_post_stats_public')
+    .select('post_id, author_id, created_at, likes_count, comments_count')
     .order('created_at', { ascending: false })
     .limit(20)
   if (after) {
     query = query.lt('created_at', after)
   }
-  const { data: posts } = await query
+  const { data: statRows } = await query
 
-  const postList = posts ?? []
+  // now fetch full post content for those ids to show text/image
+  const statsList = (statRows ?? []) as Array<{
+    post_id: string
+    author_id: string
+    created_at: string
+    likes_count: number
+    comments_count: number
+  }>
+  const postIdsForContent = statsList.map((s) => s.post_id)
+  type PostRow = {
+    id: string
+    author_id: string
+    content: string | null
+    image_url: string | null
+    created_at: string
+  }
+  const { data: posts } = postIdsForContent.length
+    ? await supabase
+        .from('posts')
+        .select('id, author_id, content, image_url, created_at')
+        .in('id', postIdsForContent)
+    : { data: [] as PostRow[] }
+
+  // Merge stats back onto posts preserving order from statsList
+  const postsMap = new Map<string, PostRow>()
+  ;((posts ?? []) as PostRow[]).forEach((p) => postsMap.set(p.id, p))
+  const postList = statsList
+    .map((s) => {
+      const base = postsMap.get(s.post_id)
+      return {
+        id: s.post_id,
+        author_id: base?.author_id ?? s.author_id,
+        created_at: s.created_at,
+        content: base?.content ?? null,
+        image_url: base?.image_url ?? null,
+        likes_count: s.likes_count,
+        comments_count: s.comments_count,
+      }
+    })
+    .filter((p) => p && p.id)
   const postIds = postList.map((p) => p.id)
   const authorIds = Array.from(new Set(postList.map((p) => p.author_id)))
 
@@ -46,15 +84,14 @@ export default async function FeedPage({
     viewerProfileResult,
     { data: assets },
   ] = await Promise.all([
-    postIds.length
-      ? supabase
-          .from('v_post_stats')
-          .select('post_id, likes_count, comments_count')
-          .in('post_id', postIds)
-      : Promise.resolve({
-          data: [] as Array<{ post_id: string; likes_count: number; comments_count: number }>,
-          error: null as null,
-        }),
+    Promise.resolve({
+      data: postList.map((p) => ({
+        post_id: p.id,
+        likes_count: p.likes_count ?? 0,
+        comments_count: p.comments_count ?? 0,
+      })),
+      error: null as null,
+    }),
     userId && postIds.length
       ? supabase.from('post_likes').select('post_id').eq('user_id', userId).in('post_id', postIds)
       : Promise.resolve({ data: [] as Array<{ post_id: string }>, error: null as null }),
@@ -118,8 +155,9 @@ export default async function FeedPage({
     authorMap.set(a.id, { username: a.username, full_name: a.full_name, avatar_url: a.avatar_url })
   )
 
+  type AssetRow = { post_id: string; url: string; mime_type: string }
   const assetsMap = new Map<string, Array<{ url: string; mime_type: string }>>()
-  ;((assets ?? []) as Array<{ post_id: string; url: string; mime_type: string }>).forEach((a) => {
+  ;((assets ?? []) as AssetRow[]).forEach((a) => {
     const arr = assetsMap.get(a.post_id) ?? []
     arr.push({ url: a.url, mime_type: a.mime_type })
     assetsMap.set(a.post_id, arr)

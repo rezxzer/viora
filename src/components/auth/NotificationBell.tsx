@@ -54,6 +54,16 @@ export default function NotificationBell() {
     void load()
   }, [open, uid])
 
+  // Auto mark-as-read when panel is opened and items are loaded
+  useEffect(() => {
+    if (!open) return
+    if (rows.length === 0) return
+    if (rows.some((r) => !r.read_at)) {
+      void markRead()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, rows])
+
   // Realtime: listen for new notifications for this user
   useEffect(() => {
     if (!uid) return
@@ -90,14 +100,21 @@ export default function NotificationBell() {
       string,
       { id: string; username: string | null; full_name: string | null; avatar_url: string | null }
     >()
-    for (const a of actors as any[]) {
+    ;(
+      actors as Array<{
+        id: string
+        username: string | null
+        full_name: string | null
+        avatar_url: string | null
+      }>
+    ).forEach((a) => {
       byId.set(a.id, {
         id: a.id,
         username: a.username ?? null,
         full_name: a.full_name ?? null,
         avatar_url: a.avatar_url ?? null,
       })
-    }
+    })
     return items.map((i) => {
       const a = byId.get(i.actor_id)
       return {
