@@ -46,7 +46,7 @@ begin
       using (
         visibility = 'public'
         or auth.uid() = creator_id
-        or exists (select 1 from auth.roles() r where r.role = 'service_role') -- service/admin
+        or current_setting('request.jwt.claims', true)::json->>'role' = 'service_role'
       );
   end if;
 
@@ -58,9 +58,9 @@ begin
     create policy streams_cud_owner on public.streams
       for all
       using (auth.uid() = creator_id
-             or exists (select 1 from auth.roles() r where r.role = 'service_role'))
+             or current_setting('request.jwt.claims', true)::json->>'role' = 'service_role')
       with check (auth.uid() = creator_id
-                  or exists (select 1 from auth.roles() r where r.role = 'service_role'));
+                  or current_setting('request.jwt.claims', true)::json->>'role' = 'service_role');
   end if;
 end $$;
 
@@ -81,7 +81,7 @@ begin
             and (
               s.visibility = 'public'
               or s.creator_id = auth.uid()
-              or exists (select 1 from auth.roles() r where r.role = 'service_role')
+              or current_setting('request.jwt.claims', true)::json->>'role' = 'service_role'
             )
         )
       );
@@ -99,7 +99,7 @@ begin
           select 1 from public.streams s
           where s.id = stream_sessions.stream_id
             and (s.creator_id = auth.uid()
-                 or exists (select 1 from auth.roles() r where r.role = 'service_role'))
+                 or current_setting('request.jwt.claims', true)::json->>'role' = 'service_role')
         )
       )
       with check (
@@ -107,7 +107,7 @@ begin
           select 1 from public.streams s
           where s.id = stream_sessions.stream_id
             and (s.creator_id = auth.uid()
-                 or exists (select 1 from auth.roles() r where r.role = 'service_role'))
+                 or current_setting('request.jwt.claims', true)::json->>'role' = 'service_role')
         )
       );
   end if;
