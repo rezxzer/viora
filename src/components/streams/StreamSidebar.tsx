@@ -2,11 +2,26 @@ import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/ui/UserAvatar'
 import LiveBadge from './LiveBadge'
 import ViewersCount from './ViewersCount'
-import { MockStream } from '@/lib/streams.mock'
-import { Heart, Share2, UserPlus, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react'
+
+import { Heart, Share2, UserPlus, ThumbsUp, ThumbsDown } from 'lucide-react'
 
 interface StreamSidebarProps {
-  stream: MockStream
+  stream: {
+    id: string
+    title: string
+    status: string
+    creator: {
+      id: string
+      username: string
+      avatarUrl?: string
+    }
+    viewers?: number
+  }
+  session?: {
+    hls_url?: string
+    rtmp_key?: string
+    ingest_url?: string
+  } | null
 }
 
 export default function StreamSidebar({ stream }: StreamSidebarProps) {
@@ -25,8 +40,8 @@ export default function StreamSidebar({ stream }: StreamSidebarProps) {
             <h1 className="text-xl font-semibold text-foreground line-clamp-2">{stream.title}</h1>
             <p className="text-muted-foreground mt-1">@{stream.creator.username}</p>
             <div className="flex items-center gap-2 mt-2">
-              {stream.live && <LiveBadge />}
-              <ViewersCount count={stream.viewers} />
+              {stream.status === 'live' && <LiveBadge />}
+              <ViewersCount count={stream.viewers || 0} />
             </div>
           </div>
         </div>
