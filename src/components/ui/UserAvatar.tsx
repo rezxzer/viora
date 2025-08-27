@@ -33,12 +33,9 @@ export function UserAvatar({ src, alt, fallback, className }: UserAvatarProps) {
       )}
       <AvatarFallback>
         {shouldUsePlaceholder ? (
-          <img
-            src="/avatar-placeholder.svg"
-            alt="Avatar placeholder"
-            className="w-full h-full object-cover"
-            onError={() => setImageError(true)}
-          />
+          <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground font-medium">
+            {fallback ? getInitials(fallback) : 'U'}
+          </div>
         ) : fallback ? (
           getInitials(fallback)
         ) : (

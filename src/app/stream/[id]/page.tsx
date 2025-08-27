@@ -23,11 +23,9 @@ export default async function StreamRoomPage({ params }: Params) {
                 </video>
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-                  <img
-                    src="/stream-placeholder.svg"
-                    alt="Stream offline"
-                    className="w-32 h-32 opacity-50"
-                  />
+                  <div className="w-32 h-32 bg-muted rounded-lg opacity-50 flex items-center justify-center">
+                    <span className="text-muted-foreground text-lg">Stream Offline</span>
+                  </div>
                 </div>
               )}
             </div>

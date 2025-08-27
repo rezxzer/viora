@@ -23,11 +23,9 @@ export default function StreamCard({ stream }: StreamCardProps) {
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-            <img
-              src="/stream-placeholder.svg"
-              alt="Stream placeholder"
-              className="w-24 h-24 opacity-50"
-            />
+            <div className="w-24 h-24 bg-muted rounded-lg opacity-50 flex items-center justify-center">
+              <span className="text-muted-foreground text-sm">No thumbnail</span>
+            </div>
           </div>
         )}
 
