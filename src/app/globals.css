@@ -48,10 +48,24 @@
   }
 }
 
-body {
-  background: var(--color-bg);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  html {
+    font-size: 100%;
+    /* avoid global upscaling */
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--foreground);
+    line-height: 1.5;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+    /* no forced width:100% on buttons/links */
+  }
 }
 
 /* Fancy reaction animations (used by CommentsDialog) */
