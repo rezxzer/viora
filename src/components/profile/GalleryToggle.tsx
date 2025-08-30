@@ -7,9 +7,16 @@ import { useEffect, useState } from 'react'
 type GalleryToggleProps = {
   mode: 'list' | 'grid'
   onChange: (mode: 'list' | 'grid') => void
+  totalPosts?: number
+  mediaPosts?: number
 }
 
-export default function GalleryToggle({ mode, onChange }: GalleryToggleProps) {
+export default function GalleryToggle({
+  mode,
+  onChange,
+  totalPosts,
+  mediaPosts,
+}: GalleryToggleProps) {
   const [localMode, setLocalMode] = useState(mode)
 
   // Load persisted mode from localStorage
@@ -60,6 +67,11 @@ export default function GalleryToggle({ mode, onChange }: GalleryToggleProps) {
         }`}
       >
         <List className="h-4 w-4" />
+        {totalPosts !== undefined && (
+          <span className="ml-2 inline-flex min-w-5 h-5 items-center justify-center rounded-full text-xs bg-white/5">
+            {totalPosts}
+          </span>
+        )}
       </Button>
       <Button
         variant={localMode === 'grid' ? 'default' : 'ghost'}
@@ -77,6 +89,11 @@ export default function GalleryToggle({ mode, onChange }: GalleryToggleProps) {
         }`}
       >
         <Grid3X3 className="h-4 w-4" />
+        {mediaPosts !== undefined && (
+          <span className="ml-2 inline-flex min-w-5 h-5 items-center justify-center rounded-full text-xs bg-white/5">
+            {mediaPosts}
+          </span>
+        )}
       </Button>
     </div>
   )

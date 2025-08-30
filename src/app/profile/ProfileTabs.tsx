@@ -325,22 +325,22 @@ export default function ProfileTabs({
           </div>
 
           {/* Follow/Unfollow or Edit button */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap gap-2">
             {canFollow ? (
               <Button
                 onClick={onToggleFollow}
                 disabled={isPending}
                 variant={isFollowing ? 'secondary' : 'default'}
-                className="hover:ring-2 hover:ring-primary/30 transition-all duration-200"
+                className="h-10 px-4 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ring-offset-2 ring-offset-surface hover:ring-1 hover:ring-primary/30 transition-all duration-200"
               >
                 {isFollowing ? 'Unfollow' : 'Follow'}
               </Button>
             ) : !readOnly ? (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   variant="secondary"
                   onClick={() => setTab('profile')}
-                  className="hover:ring-2 hover:ring-primary/30 transition-all duration-200"
+                  className="h-10 px-4 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ring-offset-2 ring-offset-surface hover:ring-1 hover:ring-primary/30 transition-all duration-200"
                 >
                   Edit profile
                 </Button>
@@ -353,7 +353,7 @@ export default function ProfileTabs({
                       el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                     } catch {}
                   }}
-                  className="hover:ring-2 hover:ring-primary/30 transition-all duration-200"
+                  className="h-10 px-4 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ring-offset-2 ring-offset-surface hover:ring-1 hover:ring-primary/30 transition-all duration-200"
                 >
                   Upload media
                 </Button>
@@ -418,7 +418,9 @@ export default function ProfileTabs({
       </div>
 
       {/* Sticky tabs */}
-      <div className="sticky top-14 z-10 -mx-2 mb-4 bg-bg/70 px-2 backdrop-blur supports-[backdrop-filter]:bg-bg/50">
+      <div
+        className={`${flags.stickyProfileTabs ? 'sticky top-16 md:top-20 z-20 bg-elev/80 backdrop-blur supports-[backdrop-filter]:bg-elev/60 border-b border-white/5' : ''} -mx-2 mb-4 px-2`}
+      >
         <TabsList className="w-full justify-start overflow-x-auto">
           <TabsTrigger value="posts">Posts</TabsTrigger>
           {!readOnly && <TabsTrigger value="profile">Profile</TabsTrigger>}
@@ -460,7 +462,14 @@ export default function ProfileTabs({
             {/* Gallery Toggle */}
             {flags.galleryToggle && (
               <div className="flex items-center justify-between">
-                <GalleryToggle mode={galleryView} onChange={setGalleryView} />
+                <GalleryToggle
+                  mode={galleryView}
+                  onChange={setGalleryView}
+                  totalPosts={myPosts.length}
+                  mediaPosts={
+                    myPosts.filter((p) => (p as { image_url?: string | null }).image_url).length
+                  }
+                />
               </div>
             )}
 

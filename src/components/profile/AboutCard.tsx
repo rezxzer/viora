@@ -21,7 +21,16 @@ export default function AboutCard({
   isOwner = false,
   onEditProfile,
 }: AboutCardProps) {
-  const hasContent = bio || location || website || (interests && interests.length > 0)
+  // Helper function to normalize and validate field values
+  const normalizeField = (v?: string | null) =>
+    v && v.trim() && !/^[-–—_]+$/.test(v) && v.trim().toLowerCase() !== 's' ? v.trim() : ''
+
+  const normalizedBio = normalizeField(bio)
+  const normalizedLocation = normalizeField(location)
+  const normalizedWebsite = normalizeField(website)
+  const hasInterests = interests && interests.length > 0
+
+  const hasContent = normalizedBio || normalizedLocation || normalizedWebsite || hasInterests
 
   if (!hasContent && !isOwner) {
     return null
@@ -36,74 +45,89 @@ export default function AboutCard({
 
       <div className="space-y-4">
         {/* Bio */}
-        {bio ? (
+        {normalizedBio ? (
           <div>
-            <p className="text-muted-foreground leading-relaxed">{bio}</p>
+            <p className="text-muted-foreground leading-relaxed">{normalizedBio}</p>
           </div>
         ) : isOwner ? (
-          <Button
-            variant="ghost"
-            size="sm"
+          <div
+            role="button"
+            tabIndex={0}
             onClick={onEditProfile}
-            className="h-auto p-0 text-muted-foreground hover:text-foreground hover:bg-primary/5 hover:ring-1 hover:ring-primary/20 justify-start transition-all duration-200"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onEditProfile?.()
+              }
+            }}
+            className="inline-flex items-center gap-2 px-2 py-1 rounded-lg ring-1 ring-white/5 hover:ring-primary/30 transition cursor-pointer"
             aria-label="Add bio"
-            title="Add bio"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4" />
             Add bio
-          </Button>
+          </div>
         ) : null}
 
         {/* Location & Website */}
         <div className="flex flex-col sm:flex-row gap-4 text-sm">
-          {location ? (
+          {normalizedLocation ? (
             <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="h-4 w-4" />
-              <span>{location}</span>
+              <span>{normalizedLocation}</span>
             </div>
           ) : isOwner ? (
-            <Button
-              variant="ghost"
-              size="sm"
+            <div
+              role="button"
+              tabIndex={0}
               onClick={onEditProfile}
-              className="h-auto p-0 text-muted-foreground hover:text-foreground hover:bg-primary/5 hover:ring-1 hover:ring-primary/20 justify-start transition-all duration-200"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onEditProfile?.()
+                }
+              }}
+              className="inline-flex items-center gap-2 px-2 py-1 rounded-lg ring-1 ring-white/5 hover:ring-primary/30 transition cursor-pointer"
               aria-label="Add location"
-              title="Add location"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4" />
               Add location
-            </Button>
+            </div>
           ) : null}
 
-          {website ? (
+          {normalizedWebsite ? (
             <div className="flex items-center gap-2">
               <Globe className="h-4 w-4 text-primary" />
               <a
-                href={website}
+                href={normalizedWebsite}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline hover:ring-1 hover:ring-primary/20 hover:bg-primary/5 px-1 py-0.5 rounded transition-all duration-200"
               >
-                {website.replace(/^https?:\/\//, '')}
+                {normalizedWebsite.replace(/^https?:\/\//, '')}
               </a>
             </div>
           ) : isOwner ? (
-            <Button
-              variant="ghost"
-              size="sm"
+            <div
+              role="button"
+              tabIndex={0}
               onClick={onEditProfile}
-              className="h-auto p-0 text-muted-foreground hover:text-foreground hover:bg-primary/5 hover:ring-1 hover:ring-primary/20 justify-start transition-all duration-200"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onEditProfile?.()
+                }
+              }}
+              className="inline-flex items-center gap-2 px-2 py-1 rounded-lg ring-1 ring-white/5 hover:ring-primary/30 transition cursor-pointer"
               aria-label="Add website"
-              title="Add website"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4" />
               Add website
-            </Button>
+            </div>
           ) : null}
         </div>
 
         {/* Interests */}
-        {interests && interests.length > 0 && (
+        {hasInterests && (
           <div>
             <h4 className="text-sm font-medium text-muted-foreground mb-2">Interests</h4>
             <div className="flex flex-wrap gap-2">

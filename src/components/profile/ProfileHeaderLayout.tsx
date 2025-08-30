@@ -33,12 +33,14 @@ export default function ProfileHeaderLayout({
             {avatar}
             {title}
           </div>
-          {actions}
+          <div className="flex flex-wrap gap-2">{actions}</div>
         </div>
 
         {/* Stats row */}
         {stats && (
-          <div className="flex flex-wrap gap-3 border-t border-white/5 px-4 py-3">{stats}</div>
+          <div className="flex flex-wrap gap-3 border-t border-white/5 px-4 py-3 mt-3 md:mt-4">
+            {stats}
+          </div>
         )}
       </div>
     )

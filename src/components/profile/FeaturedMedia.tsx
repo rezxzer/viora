@@ -17,6 +17,7 @@ type FeaturedMediaProps = {
   maxItems?: number
   layout?: 'grid' | 'carousel'
   className?: string
+  onOpenUploadMedia?: () => void
 }
 
 export default function FeaturedMedia({
@@ -24,6 +25,7 @@ export default function FeaturedMedia({
   maxItems = 4,
   layout = 'grid',
   className = '',
+  onOpenUploadMedia,
 }: FeaturedMediaProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
@@ -31,7 +33,24 @@ export default function FeaturedMedia({
   const postsWithMedia = posts.filter((post) => post.image_url).slice(0, maxItems)
 
   if (postsWithMedia.length === 0) {
-    return null
+    return (
+      <div className={`mb-6 ${className}`}>
+        <h3 className="text-sm font-medium text-muted-foreground mb-3">Featured Media</h3>
+        <div className="rounded-lg border bg-surface p-6 text-center">
+          <p className="text-sm text-muted-foreground mb-4" aria-live="polite">
+            Upload media and pin to feature on your profile.
+          </p>
+          {onOpenUploadMedia && (
+            <button
+              onClick={onOpenUploadMedia}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              Upload media
+            </button>
+          )}
+        </div>
+      </div>
+    )
   }
 
   const gridCols =
