@@ -21,7 +21,7 @@ export default function ProfileHeaderLayout({
 }: ProfileHeaderLayoutProps) {
   if (mode === 'compact') {
     return (
-      <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft ring-1 ring-white/5">
+      <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft ring-1 ring-white/5 hover:ring-1 hover:ring-white/10 transition-all duration-200">
         {/* Compact cover */}
         <div className="h-20 w-full bg-gradient-to-r from-primary/25 to-primary/5 relative">
           {children}
@@ -37,14 +37,16 @@ export default function ProfileHeaderLayout({
         </div>
 
         {/* Stats row */}
-        {stats && <div className="flex flex-wrap gap-3 border-t px-4 py-3">{stats}</div>}
+        {stats && (
+          <div className="flex flex-wrap gap-3 border-t border-white/5 px-4 py-3">{stats}</div>
+        )}
       </div>
     )
   }
 
   // Extended layout
   return (
-    <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft ring-1 ring-white/5">
+    <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft ring-1 ring-white/5 hover:ring-1 hover:ring-white/10 transition-all duration-200">
       {/* Extended cover */}
       <div className="h-32 w-full bg-gradient-to-r from-primary/25 to-primary/5 relative">
         {children}

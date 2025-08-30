@@ -28,7 +28,7 @@ export default function AboutCard({
   }
 
   return (
-    <Card className="mb-6 p-6">
+    <Card className="mb-6 p-6 hover:ring-1 hover:ring-primary/20 transition-all duration-200">
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
         <Tag className="h-5 w-5 text-primary" />
         About
@@ -45,7 +45,7 @@ export default function AboutCard({
             variant="ghost"
             size="sm"
             onClick={onEditProfile}
-            className="h-auto p-0 text-muted-foreground hover:text-foreground justify-start"
+            className="h-auto p-0 text-muted-foreground hover:text-foreground hover:bg-primary/5 hover:ring-1 hover:ring-primary/20 justify-start transition-all duration-200"
             aria-label="Add bio"
             title="Add bio"
           >
@@ -66,7 +66,7 @@ export default function AboutCard({
               variant="ghost"
               size="sm"
               onClick={onEditProfile}
-              className="h-auto p-0 text-muted-foreground hover:text-foreground justify-start"
+              className="h-auto p-0 text-muted-foreground hover:text-foreground hover:bg-primary/5 hover:ring-1 hover:ring-primary/20 justify-start transition-all duration-200"
               aria-label="Add location"
               title="Add location"
             >
@@ -82,7 +82,7 @@ export default function AboutCard({
                 href={website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:underline transition-colors"
+                className="text-primary hover:underline hover:ring-1 hover:ring-primary/20 hover:bg-primary/5 px-1 py-0.5 rounded transition-all duration-200"
               >
                 {website.replace(/^https?:\/\//, '')}
               </a>
@@ -92,7 +92,7 @@ export default function AboutCard({
               variant="ghost"
               size="sm"
               onClick={onEditProfile}
-              className="h-auto p-0 text-muted-foreground hover:text-foreground justify-start"
+              className="h-auto p-0 text-muted-foreground hover:text-foreground hover:bg-primary/5 hover:ring-1 hover:ring-primary/20 justify-start transition-all duration-200"
               aria-label="Add website"
               title="Add website"
             >
@@ -110,7 +110,7 @@ export default function AboutCard({
               {interests.map((interest, index) => (
                 <span
                   key={index}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-primary/10 text-primary border border-primary/20"
+                  className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-primary/10 text-primary border border-primary/20 hover:bg-primary/15 hover:border-primary/30 transition-all duration-200"
                 >
                   {interest}
                 </span>

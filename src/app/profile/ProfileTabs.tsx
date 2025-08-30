@@ -245,7 +245,7 @@ export default function ProfileTabs({
       className="w-full"
     >
       {/* Super header */}
-      <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft ring-1 ring-white/5 relative">
+      <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft ring-1 ring-white/5 hover:ring-1 hover:ring-white/10 transition-all duration-200 relative">
         {/* Cover */}
         <div className="h-28 w-full bg-gradient-to-r from-primary/25 to-primary/5 relative">
           {flags.coverGradients && <CoverGradient variant="default" className="rounded-t-2xl" />}
@@ -259,7 +259,7 @@ export default function ProfileTabs({
                 {!readOnly ? (
                   <AvatarEditTrigger onEdit={() => setAvatarEditOpen(true)}>
                     <div
-                      className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft"
+                      className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft hover:ring-2 hover:ring-primary/30 transition-all duration-200"
                       aria-hidden
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -287,7 +287,7 @@ export default function ProfileTabs({
             ) : !readOnly ? (
               <AvatarEditTrigger onEdit={() => setAvatarEditOpen(true)}>
                 <div
-                  className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft"
+                  className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft hover:ring-2 hover:ring-primary/30 transition-all duration-200"
                   aria-hidden
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -331,6 +331,7 @@ export default function ProfileTabs({
                 onClick={onToggleFollow}
                 disabled={isPending}
                 variant={isFollowing ? 'secondary' : 'default'}
+                className="hover:ring-2 hover:ring-primary/30 transition-all duration-200"
               >
                 {isFollowing ? 'Unfollow' : 'Follow'}
               </Button>
@@ -339,7 +340,7 @@ export default function ProfileTabs({
                 <Button
                   variant="secondary"
                   onClick={() => setTab('profile')}
-                  className="hover:ring-1 hover:ring-primary/30 transition-all"
+                  className="hover:ring-2 hover:ring-primary/30 transition-all duration-200"
                 >
                   Edit profile
                 </Button>
@@ -352,7 +353,7 @@ export default function ProfileTabs({
                       el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                     } catch {}
                   }}
-                  className="hover:ring-1 hover:ring-primary/30 transition-all"
+                  className="hover:ring-2 hover:ring-primary/30 transition-all duration-200"
                 >
                   Upload media
                 </Button>
@@ -362,7 +363,7 @@ export default function ProfileTabs({
         </div>
 
         {/* Chips row */}
-        <div className="flex flex-wrap gap-3 border-t px-4 py-3 mt-3 md:mt-4">
+        <div className="flex flex-wrap gap-3 border-t border-white/5 px-4 py-3 mt-3 md:mt-4">
           {stats ? (
             <>
               {flags.statsBadges ? (

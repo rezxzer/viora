@@ -29,7 +29,7 @@ export default function StatsBadges({ stats, size = 'md', onClick }: StatsBadges
 
   const baseBadgeClasses = `${sizeClasses[size]} flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm text-white shadow-lg transition-all duration-200`
 
-  const clickableClasses = `${baseBadgeClasses} hover:bg-white/20 hover:scale-105 cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/40 focus:ring-offset-2 focus:ring-offset-black/20`
+  const clickableClasses = `${baseBadgeClasses} hover:bg-white/20 hover:scale-105 hover:shadow-xl cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/40 focus:ring-offset-2 focus:ring-offset-black/20 active:scale-95`
   const staticClasses = `${baseBadgeClasses} cursor-default`
 
   return (

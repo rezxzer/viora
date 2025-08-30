@@ -40,7 +40,7 @@ export default function GalleryToggle({ mode, onChange }: GalleryToggleProps) {
 
   return (
     <div
-      className="flex items-center gap-1 rounded-lg border bg-surface p-1"
+      className="flex items-center gap-1 rounded-lg border bg-surface p-1 shadow-soft ring-1 ring-white/5 hover:ring-1 hover:ring-white/10 transition-all duration-200"
       role="tablist"
       aria-label="Gallery view options"
     >
@@ -53,10 +53,10 @@ export default function GalleryToggle({ mode, onChange }: GalleryToggleProps) {
         aria-selected={localMode === 'list'}
         aria-label="List view"
         title="List view"
-        className={`h-8 px-2 transition-all ${
+        className={`h-8 px-2 transition-all duration-200 ${
           localMode === 'list'
-            ? 'font-semibold bg-primary text-primary-foreground shadow-sm'
-            : 'hover:bg-muted/50'
+            ? 'font-semibold bg-primary text-primary-foreground shadow-sm hover:shadow-md'
+            : 'hover:bg-muted/50 hover:ring-1 hover:ring-primary/20'
         }`}
       >
         <List className="h-4 w-4" />
@@ -70,10 +70,10 @@ export default function GalleryToggle({ mode, onChange }: GalleryToggleProps) {
         aria-selected={localMode === 'grid'}
         aria-label="Grid view"
         title="Grid view"
-        className={`h-8 px-2 transition-all ${
+        className={`h-8 px-2 transition-all duration-200 ${
           localMode === 'grid'
-            ? 'font-semibold bg-primary text-primary-foreground shadow-sm'
-            : 'hover:bg-muted/50'
+            ? 'font-semibold bg-primary text-primary-foreground shadow-sm hover:shadow-md'
+            : 'hover:bg-muted/50 hover:ring-1 hover:ring-primary/20'
         }`}
       >
         <Grid3X3 className="h-4 w-4" />
