@@ -2,7 +2,7 @@ import type { Config } from 'tailwindcss'
 
 const config: Config = {
   darkMode: ['class', 'media'],
-  content: ['./src/**/*.{ts,tsx}'],
+  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
       colors: {
@@ -15,6 +15,7 @@ const config: Config = {
         'primary-foreground': 'var(--color-primary-foreground)',
         muted: 'var(--color-muted)',
         'muted-foreground': 'var(--color-muted-foreground)',
+        primaryFg: 'var(--primary-fg)',
       },
       borderRadius: {
         lg: 'var(--radius)',
