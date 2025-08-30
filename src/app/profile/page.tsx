@@ -5,6 +5,8 @@ import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import AvatarUploader from '@/components/profile/AvatarUploader'
 import ProfileTabs from './ProfileTabs'
+import { Button } from '@/components/ui/button'
+import { Radio } from 'lucide-react'
 
 export default async function ProfilePage() {
   const supabase = await createSupabaseServerClient()
@@ -77,7 +79,15 @@ export default async function ProfilePage() {
         <AvatarUploader userId={currentUserId} initialUrl={profile?.avatar_url ?? null} />
       </aside>
       <div className="max-w-2xl">
-        <h1 className="text-xl font-semibold mb-4">My Profile</h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-semibold">My Profile</h1>
+          <Button asChild variant="outline" size="sm">
+            <a href="/creator/streams" className="flex items-center gap-2">
+              <Radio className="w-4 h-4" />
+              Creator Dashboard
+            </a>
+          </Button>
+        </div>
         <ProfileTabs
           userId={currentUserId}
           profile={{

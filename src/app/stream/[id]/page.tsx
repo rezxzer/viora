@@ -1,58 +1,42 @@
-import { notFound } from 'next/navigation'
-import { getStreamWithLastSession } from '@/lib/streams'
-import StreamSidebar from '@/components/streams/StreamSidebar'
+import { Radio } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
-type Params = { params: Promise<{ id: string }> }
+export default function StreamDetailPage() {
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="text-center py-16 space-y-8">
+        {/* Icon */}
+        <div className="w-32 h-32 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full mx-auto flex items-center justify-center">
+          <Radio className="w-16 h-16 text-primary" />
+        </div>
 
-export default async function StreamRoomPage({ params }: Params) {
-  const { id } = await params
+        {/* Title */}
+        <div className="space-y-4">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+            Live Streaming Coming Soon
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Individual stream pages are not available yet. We&apos;re working hard to bring you an
+            amazing live streaming experience with detailed stream views.
+          </p>
+        </div>
 
-  try {
-    const { stream, session } = await getStreamWithLastSession(id)
-
-    return (
-      <div className="max-w-7xl mx-auto p-4 md:p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6">
-          {/* Video Player */}
-          <div className="space-y-4">
-            <div className="aspect-video bg-muted rounded-xl overflow-hidden">
-              {stream.status === 'live' && session?.hls_url ? (
-                <video controls className="w-full h-full object-cover">
-                  <source src={session.hls_url} type="application/x-mpegURL" />
-                  Your browser does not support HLS video.
-                </video>
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-                  <div className="w-32 h-32 bg-muted rounded-lg opacity-50 flex items-center justify-center">
-                    <span className="text-muted-foreground text-lg">Stream Offline</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Mobile Stream Info */}
-            <div className="lg:hidden space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
-                  <span className="text-muted-foreground text-sm">Avatar</span>
-                </div>
-                <div className="flex-1">
-                  <h1 className="text-xl font-semibold">{stream.title}</h1>
-                  <p className="text-muted-foreground">Status: {stream.status}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:block">
-            <StreamSidebar stream={stream} session={session} />
+        {/* CTA */}
+        <div className="space-y-4">
+          <p className="text-muted-foreground">
+            Stay tuned for updates and be the first to know when we launch!
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button asChild variant="default" size="lg">
+              <Link href="/streams">Back to Streams</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link href="/feed">Explore Feed</Link>
+            </Button>
           </div>
         </div>
       </div>
-    )
-  } catch (error) {
-    console.error('Error loading stream:', error)
-    notFound()
-  }
+    </div>
+  )
 }

@@ -11,7 +11,7 @@ interface StreamCardProps {
 export default function StreamCard({ stream }: StreamCardProps) {
   return (
     <Link
-      href={`/stream/${stream.id}`}
+      href={`/stream/${stream.id}?mock=1`}
       className="group block bg-surface border border-border rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-200 hover:shadow-lg"
     >
       <div className="relative aspect-video bg-muted">

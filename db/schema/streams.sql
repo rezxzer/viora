@@ -3,9 +3,13 @@ create table if not exists public.streams (
   id uuid primary key default gen_random_uuid(),
   creator_id uuid not null references public.profiles(id) on delete cascade,
   title text not null default 'Untitled Stream',
-  status text not null default 'idle', -- 'idle' | 'live' | 'ended'
+  description text, -- Stream description for viewers
+  status stream_status not null default 'idle'::stream_status, -- 'idle' | 'active' | 'ended' | 'errored' | 'disabled' | 'recording' | 'processing'
+  is_live boolean not null default false, -- Whether the stream is currently live
   visibility text not null default 'public', -- 'public' | 'subscribers' | 'private'
   playback_url text,
+  playback_id text, -- Mux playback ID for HLS streaming
+  mux_stream_key text, -- Mux stream key for RTMP ingestion
   thumbnail_url text,
   started_at timestamptz,
   ended_at timestamptz,
@@ -25,9 +29,11 @@ create table if not exists public.stream_sessions (
   ended_at timestamptz
 );
 
--- Helpful index
+-- Helpful indexes
 create index if not exists idx_stream_sessions_stream_id_created_at
   on public.stream_sessions(stream_id, created_at desc);
+create index if not exists idx_streams_playback_id
+  on public.streams(playback_id);
 
 -- Enable RLS
 alter table public.streams enable row level security;

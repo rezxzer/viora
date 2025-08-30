@@ -17,6 +17,11 @@ import MonetizationForm from './MonetizationForm'
 import PostEditDialog from '../../components/post/PostEditDialog'
 import CommentsDialog from '../../components/post/CommentsDialog'
 import FollowersDialog from '../../components/profile/FollowersDialog'
+// Feature flags and new UI components
+import { flags } from '@/lib/flags'
+import CoverGradient from '../../components/profile/CoverGradient'
+import AvatarRing from '../../components/profile/AvatarRing'
+import FeaturedMedia from '../../components/profile/FeaturedMedia'
 
 // ProfileData type is centralized in ./types to avoid circular imports and editor glitches
 
@@ -222,24 +227,42 @@ export default function ProfileTabs({
       className="w-full"
     >
       {/* Super header */}
-      <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft">
+      <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft relative">
         {/* Cover */}
-        <div className="h-28 w-full bg-gradient-to-r from-primary/25 to-primary/5" />
+        <div className="h-28 w-full bg-gradient-to-r from-primary/25 to-primary/5 relative">
+          {flags.coverGradients && <CoverGradient variant="default" className="rounded-t-2xl" />}
+        </div>
         {/* Row with avatar + name + actions */}
         <div className="flex items-end justify-between gap-4 px-4 pb-4">
           <div className="-mt-10 flex items-end gap-4">
             {/* Avatar */}
-            <div
-              className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft"
-              aria-hidden
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={profile.avatar_url || '/avatar-placeholder.svg'}
-                alt="avatar"
-                className="h-full w-full object-cover"
-              />
-            </div>
+            {flags.avatarRing ? (
+              <AvatarRing status="online" size="lg">
+                <div
+                  className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft"
+                  aria-hidden
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={profile.avatar_url || '/avatar-placeholder.svg'}
+                    alt="avatar"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </AvatarRing>
+            ) : (
+              <div
+                className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft"
+                aria-hidden
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={profile.avatar_url || '/avatar-placeholder.svg'}
+                  alt="avatar"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
             {/* Name + bio */}
             <div>
               <div className="text-xl font-semibold">{profile.full_name || 'Unnamed'}</div>
@@ -354,6 +377,21 @@ export default function ProfileTabs({
           <div id="profile-composer">
             <Composer userId={userId} avatarUrl={profile.avatar_url} />
           </div>
+        )}
+        {/* Featured Media Grid */}
+        {flags.featuredMedia && myPosts.length > 0 && (
+          <FeaturedMedia
+            posts={myPosts.map((p) => ({
+              id: p.post_id,
+              content: (p as { content?: string | null }).content ?? null,
+              image_url: (p as { image_url?: string | null }).image_url ?? null,
+              created_at: p.created_at,
+              likes_count: p.likes_count,
+              comments_count: p.comments_count,
+            }))}
+            maxItems={4}
+            layout="grid"
+          />
         )}
         {myPosts.length > 0 ? (
           <div className="space-y-4 mb-8">
