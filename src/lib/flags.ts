@@ -113,7 +113,6 @@ export const flags = {
 // Development logging for QA
 if (process.env.NODE_ENV === 'development') {
   // log once
-  // eslint-disable-next-line no-console
   console.table(flags)
 }
 

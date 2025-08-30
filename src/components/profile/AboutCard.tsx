@@ -2,7 +2,6 @@
 
 import { MapPin, Globe, Tag, Plus } from 'lucide-react'
 import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 
 type AboutCardProps = {
   bio?: string

@@ -23,7 +23,6 @@ type FeaturedMediaProps = {
 export default function FeaturedMedia({
   posts,
   maxItems = 4,
-  layout = 'grid',
   className = '',
   onOpenUploadMedia,
 }: FeaturedMediaProps) {
