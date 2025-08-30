@@ -1,87 +1,85 @@
 /* Skeleton loading states */
 
-@layer components {
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-muted) 25%,
+    var(--color-elev) 37%,
+    var(--color-muted) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
   .skeleton {
-    background: linear-gradient(
-      90deg,
-      var(--color-muted) 25%,
-      var(--color-elev) 37%,
-      var(--color-muted) 63%
-    );
-    background-size: 400% 100%;
-    animation: skeleton-loading 1.4s ease infinite;
+    animation: none;
+    background: var(--color-muted);
   }
+}
 
-  @keyframes skeleton-loading {
-    0% {
-      background-position: 100% 50%;
-    }
+/* Skeleton variants */
+.skeleton-avatar {
+  border-radius: 9999px;
+}
 
-    100% {
-      background-position: 0% 50%;
-    }
-  }
+.skeleton-text {
+  border-radius: 0.25rem;
+}
 
-  /* Respect reduced motion preference */
-  @media (prefers-reduced-motion: reduce) {
-    .skeleton {
-      animation: none;
-      background: var(--color-muted);
-    }
-  }
+.skeleton-badge {
+  border-radius: 9999px;
+}
 
-  /* Skeleton variants */
-  .skeleton-avatar {
-    border-radius: 9999px;
-  }
+.skeleton-card {
+  border-radius: 0.5rem;
+}
 
-  .skeleton-text {
-    border-radius: 0.25rem;
-  }
+/* Profile header skeleton */
+.skeleton-header {
+  height: 7rem;
+  width: 100%;
+}
 
-  .skeleton-badge {
-    border-radius: 9999px;
-  }
+.skeleton-avatar-large {
+  height: 5rem;
+  width: 5rem;
+}
 
-  .skeleton-card {
-    border-radius: 0.5rem;
-  }
+.skeleton-title {
+  height: 1.5rem;
+  width: 8rem;
+}
 
-  /* Profile header skeleton */
-  .skeleton-header {
-    height: 7rem;
-    width: 100%;
-  }
+.skeleton-subtitle {
+  height: 1rem;
+  width: 6rem;
+}
 
-  .skeleton-avatar-large {
-    height: 5rem;
-    width: 5rem;
-  }
+.skeleton-bio {
+  height: 1rem;
+  width: 16rem;
+}
 
-  .skeleton-title {
-    height: 1.5rem;
-    width: 8rem;
-  }
+/* Stats skeleton */
+.skeleton-stat {
+  height: 2rem;
+  width: 5rem;
+}
 
-  .skeleton-subtitle {
-    height: 1rem;
-    width: 6rem;
-  }
-
-  .skeleton-bio {
-    height: 1rem;
-    width: 16rem;
-  }
-
-  /* Stats skeleton */
-  .skeleton-stat {
-    height: 2rem;
-    width: 5rem;
-  }
-
-  /* Post skeleton */
-  .skeleton-post {
-    height: 8rem;
-    width: 100%;
-  }
+/* Post skeleton */
+.skeleton-post {
+  height: 8rem;
+  width: 100%;
 }

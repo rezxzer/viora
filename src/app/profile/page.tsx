@@ -3,7 +3,6 @@ export const revalidate = 0
 
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
-import AvatarUploader from '@/components/profile/AvatarUploader'
 import ProfileTabs from './ProfileTabs'
 import { Button } from '@/components/ui/button'
 import { Radio } from 'lucide-react'
@@ -73,55 +72,49 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-[240px_1fr]">
-      <aside className="space-y-4">
-        <h2 className="text-sm font-medium text-muted-foreground">Avatar</h2>
-        <AvatarUploader userId={currentUserId} initialUrl={profile?.avatar_url ?? null} />
-      </aside>
-      <div className="max-w-2xl">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-semibold">My Profile</h1>
-          <Button asChild variant="outline" size="sm">
-            <a href="/creator/streams" className="flex items-center gap-2">
-              <Radio className="w-4 h-4" />
-              Creator Dashboard
-            </a>
-          </Button>
-        </div>
-        <ProfileTabs
-          userId={currentUserId}
-          profile={{
-            id: currentUserId,
-            full_name: profile?.full_name ?? null,
-            username: profile?.username ?? null,
-            bio: profile?.bio ?? null,
-            avatar_url: profile?.avatar_url ?? null,
-            location: profile?.location ?? null,
-            website: profile?.website ?? null,
-            birthday: profile?.birthday ?? null,
-            links: (profile?.links as Record<string, string> | null) ?? null,
-            pronouns: profile?.pronouns ?? null,
-            privacy_level: (() => {
-              const v = (profile?.privacy_level as unknown as string | null) ?? null
-              return v === 'public' || v === 'followers_only' || v === 'verified_only' ? v : null
-            })(),
-          }}
-          initialStats={
-            stats
-              ? {
-                  followers_count: stats.followers_count ?? 0,
-                  following_count: stats.following_count ?? 0,
-                  posts_count: stats.posts_count ?? 0,
-                  likes_received: stats.likes_received ?? 0,
-                }
-              : null
-          }
-          showFollowButton={false}
-          initialPosts={postsData ?? []}
-          initialLikedPostIds={likedIds}
-          viewerId={currentUserId}
-        />
+    <div className="max-w-2xl mx-auto">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-xl font-semibold">My Profile</h1>
+        <Button asChild variant="outline" size="sm">
+          <a href="/creator/streams" className="flex items-center gap-2">
+            <Radio className="w-4 h-4" />
+            Creator Dashboard
+          </a>
+        </Button>
       </div>
+      <ProfileTabs
+        userId={currentUserId}
+        profile={{
+          id: currentUserId,
+          full_name: profile?.full_name ?? null,
+          username: profile?.username ?? null,
+          bio: profile?.bio ?? null,
+          avatar_url: profile?.avatar_url ?? null,
+          location: profile?.location ?? null,
+          website: profile?.website ?? null,
+          birthday: profile?.birthday ?? null,
+          links: (profile?.links as Record<string, string> | null) ?? null,
+          pronouns: profile?.pronouns ?? null,
+          privacy_level: (() => {
+            const v = (profile?.privacy_level as unknown as string | null) ?? null
+            return v === 'public' || v === 'followers_only' || v === 'verified_only' ? v : null
+          })(),
+        }}
+        initialStats={
+          stats
+            ? {
+                followers_count: stats.followers_count ?? 0,
+                following_count: stats.following_count ?? 0,
+                posts_count: stats.posts_count ?? 0,
+                likes_received: stats.likes_received ?? 0,
+              }
+            : null
+        }
+        showFollowButton={false}
+        initialPosts={postsData ?? []}
+        initialLikedPostIds={likedIds}
+        viewerId={currentUserId}
+      />
     </div>
   )
 }

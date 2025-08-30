@@ -1,12 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Import micro-interactions */
 @import '../styles/micro.css';
 
 /* Import skeleton styles */
 @import '../styles/skeleton.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   /* Legacy tokens (kept for compatibility) */
@@ -68,7 +68,7 @@
   }
 }
 
-/* Fancy reaction animations (used by CommentsDialog) */
+/* Fancy reaction animations (used byCommentsDialog) */
 @keyframes star-pop-1 {
   0% {
     transform: translate(0, 0) scale(0.6);

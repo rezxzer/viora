@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabaseBrowserClient } from '@/lib/supabase-client'
 import { Button } from '@/components/ui/button'
-import { UserAvatar } from '@/components/ui/UserAvatar'
 import { toast } from 'sonner'
 
 type AvatarUploaderProps = {
   userId: string
   initialUrl: string | null
+  onSuccess?: () => void
 }
 
 /**
@@ -18,7 +18,7 @@ type AvatarUploaderProps = {
  * - Updates profiles.avatar_url with a public URL
  * - Emits a global event 'viora:avatar-updated' to update header instantly
  */
-export default function AvatarUploader({ userId, initialUrl }: AvatarUploaderProps) {
+export default function AvatarUploader({ userId, initialUrl, onSuccess }: AvatarUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState<string | null>(initialUrl ?? null)
   const [uploading, setUploading] = useState<boolean>(false)
@@ -104,35 +104,50 @@ export default function AvatarUploader({ userId, initialUrl }: AvatarUploaderPro
     setPreview(publicUrl)
     // Notify header to refresh avatar without full reload
     window.dispatchEvent(new CustomEvent('viora:avatar-updated', { detail: { url: publicUrl } }))
+
+    // Call onSuccess callback if provided
+    onSuccess?.()
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-3">
-        <UserAvatar src={preview} alt="Avatar preview" fallback="U" className="size-16" />
-        <div className="flex flex-col gap-2">
-          <input
-            ref={fileInputRef}
-            id="avatar"
-            type="file"
-            accept="image/*"
-            aria-label="Choose avatar image"
-            onChange={onFileChange}
+    <div className="space-y-4">
+      {/* Avatar preview */}
+      <div className="flex justify-center">
+        <div className="h-24 w-24 overflow-hidden rounded-full border bg-elev shadow-soft">
+          <img
+            src={preview || '/avatar-placeholder.svg'}
+            alt="Avatar preview"
+            className="h-full w-full object-cover"
           />
-          <div className="flex gap-2">
-            <Button onClick={handleUpload} disabled={uploading} aria-label="Upload avatar">
-              {uploading ? 'Uploading...' : 'Upload'}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => fileInputRef.current?.click()}
-              aria-label="Select image"
-            >
-              Select image
-            </Button>
-          </div>
         </div>
       </div>
+
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        id="avatar"
+        type="file"
+        accept="image/*"
+        aria-label="Choose avatar image"
+        onChange={onFileChange}
+        className="sr-only"
+      />
+
+      {/* Action buttons */}
+      <div className="flex gap-2">
+        <Button variant="outline" onClick={() => fileInputRef.current?.click()} className="flex-1">
+          Select image
+        </Button>
+        <Button
+          onClick={handleUpload}
+          disabled={uploading || !preview || preview === initialUrl}
+          className="flex-1"
+        >
+          {uploading ? 'Uploading...' : 'Upload'}
+        </Button>
+      </div>
+
+      {/* Progress bar */}
       {uploading ? (
         <div className="h-2 w-full overflow-hidden rounded bg-elev">
           <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
