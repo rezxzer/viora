@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { List, Grid3X3 } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 type GalleryToggleProps = {
   mode: 'list' | 'grid'
@@ -9,25 +10,71 @@ type GalleryToggleProps = {
 }
 
 export default function GalleryToggle({ mode, onChange }: GalleryToggleProps) {
+  const [localMode, setLocalMode] = useState(mode)
+
+  // Load persisted mode from localStorage
+  useEffect(() => {
+    const persisted = localStorage.getItem('profile.galleryMode') as 'list' | 'grid' | null
+    if (persisted && (persisted === 'list' || persisted === 'grid')) {
+      setLocalMode(persisted)
+      onChange(persisted)
+    }
+  }, [onChange])
+
+  // Persist mode changes
+  useEffect(() => {
+    localStorage.setItem('profile.galleryMode', localMode)
+  }, [localMode])
+
+  const handleModeChange = (newMode: 'list' | 'grid') => {
+    setLocalMode(newMode)
+    onChange(newMode)
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent, newMode: 'list' | 'grid') => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      handleModeChange(newMode)
+    }
+  }
+
   return (
-    <div className="flex items-center gap-1 rounded-lg border bg-surface p-1">
+    <div
+      className="flex items-center gap-1 rounded-lg border bg-surface p-1"
+      role="tablist"
+      aria-label="Gallery view options"
+    >
       <Button
-        variant={mode === 'list' ? 'default' : 'ghost'}
+        variant={localMode === 'list' ? 'default' : 'ghost'}
         size="sm"
-        onClick={() => onChange('list')}
-        aria-pressed={mode === 'list'}
+        onClick={() => handleModeChange('list')}
+        onKeyDown={(e) => handleKeyDown(e, 'list')}
+        role="tab"
+        aria-selected={localMode === 'list'}
         aria-label="List view"
-        className="h-8 px-2"
+        title="List view"
+        className={`h-8 px-2 transition-all ${
+          localMode === 'list'
+            ? 'font-semibold bg-primary text-primary-foreground shadow-sm'
+            : 'hover:bg-muted/50'
+        }`}
       >
         <List className="h-4 w-4" />
       </Button>
       <Button
-        variant={mode === 'grid' ? 'default' : 'ghost'}
+        variant={localMode === 'grid' ? 'default' : 'ghost'}
         size="sm"
-        onClick={() => onChange('grid')}
-        aria-pressed={mode === 'grid'}
+        onClick={() => handleModeChange('grid')}
+        onKeyDown={(e) => handleKeyDown(e, 'grid')}
+        role="tab"
+        aria-selected={localMode === 'grid'}
         aria-label="Grid view"
-        className="h-8 px-2"
+        title="Grid view"
+        className={`h-8 px-2 transition-all ${
+          localMode === 'grid'
+            ? 'font-semibold bg-primary text-primary-foreground shadow-sm'
+            : 'hover:bg-muted/50'
+        }`}
       >
         <Grid3X3 className="h-4 w-4" />
       </Button>

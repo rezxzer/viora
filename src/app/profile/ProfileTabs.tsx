@@ -36,6 +36,8 @@ import VerificationStatus from '../../components/profile/VerificationStatus'
 import PostActionsExtra from '../../components/post/PostActionsExtra'
 import GalleryFilters, { type GalleryFilter } from '../../components/post/GalleryFilters'
 import useInfinitePosts from '../../hooks/useInfinitePosts'
+import AvatarEditTrigger from '../../components/profile/AvatarEditTrigger'
+import AvatarEditDialog from '../../components/profile/AvatarEditDialog'
 
 // ProfileData type is centralized in ./types to avoid circular imports and editor glitches
 
@@ -95,6 +97,7 @@ export default function ProfileTabs({
   const [followersOpen, setFollowersOpen] = useState(false)
   const [followingOpen, setFollowingOpen] = useState(false)
   const [galleryView, setGalleryView] = useState<'list' | 'grid'>('list')
+  const [avatarEditOpen, setAvatarEditOpen] = useState(false)
 
   const canFollow = showFollowButton && !!targetUserId && targetUserId !== userId
   const authorIdForPosts = postsAuthorId || userId
@@ -242,7 +245,7 @@ export default function ProfileTabs({
       className="w-full"
     >
       {/* Super header */}
-      <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft relative">
+      <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft ring-1 ring-white/5 relative">
         {/* Cover */}
         <div className="h-28 w-full bg-gradient-to-r from-primary/25 to-primary/5 relative">
           {flags.coverGradients && <CoverGradient variant="default" className="rounded-t-2xl" />}
@@ -253,6 +256,36 @@ export default function ProfileTabs({
             {/* Avatar */}
             {flags.avatarRing ? (
               <AvatarRing status="online" size="lg">
+                {!readOnly ? (
+                  <AvatarEditTrigger onEdit={() => setAvatarEditOpen(true)}>
+                    <div
+                      className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft"
+                      aria-hidden
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={profile.avatar_url || '/avatar-placeholder.svg'}
+                        alt="avatar"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  </AvatarEditTrigger>
+                ) : (
+                  <div
+                    className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft"
+                    aria-hidden
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={profile.avatar_url || '/avatar-placeholder.svg'}
+                      alt="avatar"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                )}
+              </AvatarRing>
+            ) : !readOnly ? (
+              <AvatarEditTrigger onEdit={() => setAvatarEditOpen(true)}>
                 <div
                   className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft"
                   aria-hidden
@@ -264,7 +297,7 @@ export default function ProfileTabs({
                     className="h-full w-full object-cover"
                   />
                 </div>
-              </AvatarRing>
+              </AvatarEditTrigger>
             ) : (
               <div
                 className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft"
@@ -303,7 +336,11 @@ export default function ProfileTabs({
               </Button>
             ) : !readOnly ? (
               <div className="flex items-center gap-2">
-                <Button variant="secondary" onClick={() => setTab('profile')}>
+                <Button
+                  variant="secondary"
+                  onClick={() => setTab('profile')}
+                  className="hover:ring-1 hover:ring-primary/30 transition-all"
+                >
                   Edit profile
                 </Button>
                 <Button
@@ -315,6 +352,7 @@ export default function ProfileTabs({
                       el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                     } catch {}
                   }}
+                  className="hover:ring-1 hover:ring-primary/30 transition-all"
                 >
                   Upload media
                 </Button>
@@ -324,7 +362,7 @@ export default function ProfileTabs({
         </div>
 
         {/* Chips row */}
-        <div className="flex flex-wrap gap-3 border-t px-4 py-3">
+        <div className="flex flex-wrap gap-3 border-t px-4 py-3 mt-3 md:mt-4">
           {stats ? (
             <>
               {flags.statsBadges ? (
@@ -446,6 +484,8 @@ export default function ProfileTabs({
             location={profile.location || undefined}
             website={profile.website || undefined}
             interests={[]} // No interests field in current profile payload
+            isOwner={!readOnly && viewerId === userId}
+            onEditProfile={() => setTab('profile')}
           />
         )}
 
@@ -622,6 +662,12 @@ export default function ProfileTabs({
         onOpenChange={setFollowingOpen}
         type="following"
         viewerId={viewerId}
+      />
+      <AvatarEditDialog
+        userId={userId}
+        initialUrl={profile.avatar_url}
+        open={avatarEditOpen}
+        onOpenChange={setAvatarEditOpen}
       />
     </Tabs>
   )

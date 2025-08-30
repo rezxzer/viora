@@ -1,19 +1,29 @@
 'use client'
 
-import { MapPin, Globe, Tag } from 'lucide-react'
+import { MapPin, Globe, Tag, Plus } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 type AboutCardProps = {
   bio?: string
   location?: string
   website?: string
   interests?: string[]
+  isOwner?: boolean
+  onEditProfile?: () => void
 }
 
-export default function AboutCard({ bio, location, website, interests }: AboutCardProps) {
+export default function AboutCard({
+  bio,
+  location,
+  website,
+  interests,
+  isOwner = false,
+  onEditProfile,
+}: AboutCardProps) {
   const hasContent = bio || location || website || (interests && interests.length > 0)
 
-  if (!hasContent) {
+  if (!hasContent && !isOwner) {
     return null
   }
 
@@ -26,22 +36,46 @@ export default function AboutCard({ bio, location, website, interests }: AboutCa
 
       <div className="space-y-4">
         {/* Bio */}
-        {bio && (
+        {bio ? (
           <div>
             <p className="text-muted-foreground leading-relaxed">{bio}</p>
           </div>
-        )}
+        ) : isOwner ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onEditProfile}
+            className="h-auto p-0 text-muted-foreground hover:text-foreground justify-start"
+            aria-label="Add bio"
+            title="Add bio"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add bio
+          </Button>
+        ) : null}
 
         {/* Location & Website */}
         <div className="flex flex-col sm:flex-row gap-4 text-sm">
-          {location && (
+          {location ? (
             <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="h-4 w-4" />
               <span>{location}</span>
             </div>
-          )}
+          ) : isOwner ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onEditProfile}
+              className="h-auto p-0 text-muted-foreground hover:text-foreground justify-start"
+              aria-label="Add location"
+              title="Add location"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add location
+            </Button>
+          ) : null}
 
-          {website && (
+          {website ? (
             <div className="flex items-center gap-2">
               <Globe className="h-4 w-4 text-primary" />
               <a
@@ -53,7 +87,19 @@ export default function AboutCard({ bio, location, website, interests }: AboutCa
                 {website.replace(/^https?:\/\//, '')}
               </a>
             </div>
-          )}
+          ) : isOwner ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onEditProfile}
+              className="h-auto p-0 text-muted-foreground hover:text-foreground justify-start"
+              aria-label="Add website"
+              title="Add website"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add website
+            </Button>
+          ) : null}
         </div>
 
         {/* Interests */}

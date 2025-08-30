@@ -21,7 +21,7 @@ export default function ProfileHeaderLayout({
 }: ProfileHeaderLayoutProps) {
   if (mode === 'compact') {
     return (
-      <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft">
+      <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft ring-1 ring-white/5">
         {/* Compact cover */}
         <div className="h-20 w-full bg-gradient-to-r from-primary/25 to-primary/5 relative">
           {children}
@@ -44,7 +44,7 @@ export default function ProfileHeaderLayout({
 
   // Extended layout
   return (
-    <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft">
+    <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft ring-1 ring-white/5">
       {/* Extended cover */}
       <div className="h-32 w-full bg-gradient-to-r from-primary/25 to-primary/5 relative">
         {children}
