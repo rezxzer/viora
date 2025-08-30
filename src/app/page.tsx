@@ -111,108 +111,110 @@ export default async function Home() {
   )
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-8">
-      {/* Hero */}
-      <Card className="bg-gradient-to-br from-primary/10 to-primary/0">
-        <CardHeader>
-          <CardTitle className="text-2xl">Welcome to VIORA</CardTitle>
-          <CardDescription>
-            Global social network. Create your profile and join the conversation.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {session ? (
-            <div className="flex flex-wrap gap-3">
-              <Link href="/feed">
-                <Button>Go to Feed</Button>
-              </Link>
-              <Link href="/profile">
-                <Button variant="outline">Go to Profile</Button>
-              </Link>
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-3">
-              <Link href="/sign-in">
-                <Button>Sign In</Button>
-              </Link>
-              <Link href="/sign-up">
-                <Button variant="outline">Sign Up</Button>
-              </Link>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+    <main>
+      <div className="mx-auto w-full max-w-5xl space-y-8">
+        {/* Hero */}
+        <Card className="bg-gradient-to-br from-primary/10 to-primary/0">
+          <CardHeader>
+            <CardTitle className="text-2xl">Welcome to VIORA</CardTitle>
+            <CardDescription>
+              Global social network. Create your profile and join the conversation.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {session ? (
+              <div className="flex flex-wrap gap-3">
+                <Link href="/feed">
+                  <Button>Go to Feed</Button>
+                </Link>
+                <Link href="/profile">
+                  <Button variant="outline">Go to Profile</Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-3">
+                <Link href="/sign-in">
+                  <Button>Sign In</Button>
+                </Link>
+                <Link href="/sign-up">
+                  <Button variant="outline">Sign Up</Button>
+                </Link>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-      {/* Top Creators */}
-      <div className="space-y-3">
-        <div className="text-lg font-semibold">Top creators</div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {ranking.length === 0 ? (
-            <div className="rounded-2xl border bg-surface p-6 text-sm text-muted-foreground">
-              No creators yet.
-            </div>
-          ) : (
-            ranking.map(([id, cnt]) => {
-              const c = creatorsMap.get(id)
-              if (!c) return null
-              return (
-                <Card key={id} className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={c.avatar_url ?? '/avatar-placeholder.svg'}
-                      alt={c.username ?? 'avatar'}
-                      className="h-10 w-10 rounded-full object-cover border"
-                    />
-                    <div>
-                      <div className="text-sm font-medium">
-                        {c.full_name || c.username || 'User'}
+        {/* Top Creators */}
+        <div className="space-y-3">
+          <div className="text-lg font-semibold">Top creators</div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {ranking.length === 0 ? (
+              <div className="rounded-2xl border bg-surface p-6 text-sm text-muted-foreground">
+                No creators yet.
+              </div>
+            ) : (
+              ranking.map(([id, cnt]) => {
+                const c = creatorsMap.get(id)
+                if (!c) return null
+                return (
+                  <Card key={id} className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={c.avatar_url ?? '/avatar-placeholder.svg'}
+                        alt={c.username ?? 'avatar'}
+                        className="h-10 w-10 rounded-full object-cover border"
+                      />
+                      <div>
+                        <div className="text-sm font-medium">
+                          {c.full_name || c.username || 'User'}
+                        </div>
+                        <div className="text-xs text-muted-foreground">@{c.username || 'user'}</div>
                       </div>
-                      <div className="text-xs text-muted-foreground">@{c.username || 'user'}</div>
                     </div>
-                  </div>
-                  <div className="text-xs text-muted-foreground">{cnt} followers</div>
-                </Card>
-              )
-            })
-          )}
+                    <div className="text-xs text-muted-foreground">{cnt} followers</div>
+                  </Card>
+                )
+              })
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Trending Posts */}
-      <div className="space-y-3">
-        <div className="text-lg font-semibold">Trending posts</div>
-        <div className="space-y-4">
-          {statList.length === 0 ? (
-            <div className="rounded-2xl border bg-surface p-6 text-sm text-muted-foreground">
-              Nothing yet. Check back soon.
-            </div>
-          ) : (
-            statList.map((s) => {
-              const p = postsMap.get(s.post_id) || {
-                id: s.post_id,
-                author_id: s.author_id,
-                created_at: s.created_at,
-                content: null,
-                image_url: null,
-              }
-              return (
-                <PostCardLite
-                  key={s.post_id}
-                  postId={s.post_id}
-                  authorId={p.author_id}
-                  createdAt={p.created_at}
-                  initialLikesCount={s.likes_count}
-                  initialCommentsCount={s.comments_count}
-                  initiallyLiked={likedSet.has(s.post_id)}
-                  content={p.content}
-                  imageUrl={p.image_url}
-                />
-              )
-            })
-          )}
+        {/* Trending Posts */}
+        <div className="space-y-3">
+          <div className="text-lg font-semibold">Trending posts</div>
+          <div className="space-y-4">
+            {statList.length === 0 ? (
+              <div className="rounded-2xl border bg-surface p-6 text-sm text-muted-foreground">
+                Nothing yet. Check back soon.
+              </div>
+            ) : (
+              statList.map((s) => {
+                const p = postsMap.get(s.post_id) || {
+                  id: s.post_id,
+                  author_id: s.author_id,
+                  created_at: s.created_at,
+                  content: null,
+                  image_url: null,
+                }
+                return (
+                  <PostCardLite
+                    key={s.post_id}
+                    postId={s.post_id}
+                    authorId={p.author_id}
+                    createdAt={p.created_at}
+                    initialLikesCount={s.likes_count}
+                    initialCommentsCount={s.comments_count}
+                    initiallyLiked={likedSet.has(s.post_id)}
+                    content={p.content}
+                    imageUrl={p.image_url}
+                  />
+                )
+              })
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }
