@@ -22,6 +22,10 @@ import { flags } from '@/lib/flags'
 import CoverGradient from '../../components/profile/CoverGradient'
 import AvatarRing from '../../components/profile/AvatarRing'
 import FeaturedMedia from '../../components/profile/FeaturedMedia'
+import GalleryToggle from '../../components/profile/GalleryToggle'
+import PostGrid from '../../components/post/PostGrid'
+import VerificationBadge from '../../components/profile/VerificationBadge'
+import Ripple from '../../components/ui/Ripple'
 
 // ProfileData type is centralized in ./types to avoid circular imports and editor glitches
 
@@ -80,6 +84,7 @@ export default function ProfileTabs({
   const [commentsPostId, setCommentsPostId] = useState<string | null>(null)
   const [followersOpen, setFollowersOpen] = useState(false)
   const [followingOpen, setFollowingOpen] = useState(false)
+  const [galleryView, setGalleryView] = useState<'list' | 'grid'>('list')
 
   const canFollow = showFollowButton && !!targetUserId && targetUserId !== userId
   const authorIdForPosts = postsAuthorId || userId
@@ -265,7 +270,10 @@ export default function ProfileTabs({
             )}
             {/* Name + bio */}
             <div>
-              <div className="text-xl font-semibold">{profile.full_name || 'Unnamed'}</div>
+              <div className="flex items-center gap-2">
+                <div className="text-xl font-semibold">{profile.full_name || 'Unnamed'}</div>
+                {flags.verificationBadge && <VerificationBadge isVerified={false} size="md" />}
+              </div>
               <div className="text-sm text-muted-foreground">@{profile.username || 'username'}</div>
               {profile.bio ? (
                 <div className="mt-1 max-w-xl text-sm text-muted-foreground">{profile.bio}</div>
@@ -378,6 +386,14 @@ export default function ProfileTabs({
             <Composer userId={userId} avatarUrl={profile.avatar_url} />
           </div>
         )}
+
+        {/* Gallery Toggle */}
+        {flags.galleryToggle && myPosts.length > 0 && (
+          <div className="mb-4 flex items-center justify-between">
+            <GalleryToggle mode={galleryView} onChange={setGalleryView} />
+          </div>
+        )}
+
         {/* Featured Media Grid */}
         {flags.featuredMedia && myPosts.length > 0 && (
           <FeaturedMedia
@@ -394,43 +410,105 @@ export default function ProfileTabs({
           />
         )}
         {myPosts.length > 0 ? (
-          <div className="space-y-4 mb-8">
-            {myPosts.map((p) => (
-              <div key={p.post_id} className="group relative">
-                <PostCardLite
-                  postId={p.post_id}
-                  authorId={p.author_id}
-                  createdAt={p.created_at}
-                  content={(p as { content?: string | null }).content}
-                  imageUrl={(p as { image_url?: string | null }).image_url}
-                  initialLikesCount={p.likes_count}
-                  initialCommentsCount={p.comments_count}
-                  initiallyLiked={initialLikedPostIds.includes(p.post_id)}
-                />
-                {/* Owner actions */}
-                {userId === p.author_id ? (
-                  <div className="absolute right-3 top-3 hidden gap-2 group-hover:flex">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setCommentsPostId(p.post_id)
-                        setCommentsOpen(true)
-                      }}
-                    >
-                      Comments
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => onEditPost(p.post_id)}>
-                      Edit
-                    </Button>
-                    <Button size="sm" variant="destructive" onClick={() => onDeletePost(p.post_id)}>
-                      Delete
-                    </Button>
+          <>
+            {/* Gallery View */}
+            {flags.galleryToggle && galleryView === 'grid' ? (
+              <PostGrid
+                posts={myPosts.map((p) => ({
+                  id: p.post_id,
+                  content: (p as { content?: string | null }).content ?? null,
+                  image_url: (p as { image_url?: string | null }).image_url ?? null,
+                  created_at: p.created_at,
+                  likes_count: p.likes_count,
+                  comments_count: p.comments_count,
+                }))}
+              />
+            ) : (
+              /* List View */
+              <div className="space-y-4 mb-8">
+                {myPosts.map((p) => (
+                  <div key={p.post_id} className="group relative">
+                    <PostCardLite
+                      postId={p.post_id}
+                      authorId={p.author_id}
+                      createdAt={p.created_at}
+                      content={(p as { content?: string | null }).content}
+                      imageUrl={(p as { image_url?: string | null }).image_url}
+                      initialLikesCount={p.likes_count}
+                      initialCommentsCount={p.comments_count}
+                      initiallyLiked={initialLikedPostIds.includes(p.post_id)}
+                    />
+                    {/* Owner actions */}
+                    {userId === p.author_id ? (
+                      <div className="absolute right-3 top-3 hidden gap-2 group-hover:flex">
+                        {flags.microInteractions ? (
+                          <>
+                            <Ripple>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setCommentsPostId(p.post_id)
+                                  setCommentsOpen(true)
+                                }}
+                              >
+                                Comments
+                              </Button>
+                            </Ripple>
+                            <Ripple>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => onEditPost(p.post_id)}
+                              >
+                                Edit
+                              </Button>
+                            </Ripple>
+                            <Ripple>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => onDeletePost(p.post_id)}
+                              >
+                                Delete
+                              </Button>
+                            </Ripple>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setCommentsPostId(p.post_id)
+                                setCommentsOpen(true)
+                              }}
+                            >
+                              Comments
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => onEditPost(p.post_id)}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => onDeletePost(p.post_id)}
+                            >
+                              Delete
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    ) : null}
                   </div>
-                ) : null}
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+          </>
         ) : (
           <div className="mb-8 rounded-2xl border bg-surface p-6 text-sm text-muted-foreground">
             No posts yet. Share something to get started.

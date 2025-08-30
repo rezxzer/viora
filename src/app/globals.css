@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* Import micro-interactions */
+@import '../../styles/micro.css';
+
 :root {
   /* Legacy tokens (kept for compatibility) */
   --background: #ffffff;
@@ -10,7 +13,8 @@
   --color-surface: #ffffff;
   --color-elev: #f4f4f5;
   --color-border: #e5e7eb;
-  --color-primary: #7c3aed; /* violet-600 */
+  --color-primary: #7c3aed;
+  /* violet-600 */
   --color-primary-foreground: #ffffff;
   --color-muted: #f5f5f5;
   --color-muted-foreground: #6b7280;
@@ -43,7 +47,8 @@
     --color-surface: #121212;
     --color-elev: #1a1a1a;
     --color-border: #262626;
-    --color-primary: #8b5cf6; /* violet-500 */
+    --color-primary: #8b5cf6;
+    /* violet-500 */
     --color-primary-foreground: #0b0b0b;
     --color-muted: #18181b;
     --color-muted-foreground: #a1a1aa;
@@ -63,35 +68,43 @@ body {
     transform: translate(0, 0) scale(0.6);
     opacity: 0;
   }
+
   40% {
     opacity: 1;
   }
+
   100% {
     transform: translate(6px, -6px) scale(1);
     opacity: 0;
   }
 }
+
 @keyframes star-pop-2 {
   0% {
     transform: translate(0, 0) scale(0.6);
     opacity: 0;
   }
+
   40% {
     opacity: 1;
   }
+
   100% {
     transform: translate(-6px, -6px) scale(1);
     opacity: 0;
   }
 }
+
 @keyframes star-pop-3 {
   0% {
     transform: translate(0, 0) scale(0.6);
     opacity: 0;
   }
+
   40% {
     opacity: 1;
   }
+
   100% {
     transform: translate(4px, 6px) scale(1);
     opacity: 0;
@@ -101,9 +114,11 @@ body {
 .animate-star1 {
   animation: star-pop-1 900ms ease-out forwards;
 }
+
 .animate-star2 {
   animation: star-pop-2 900ms ease-out forwards;
 }
+
 .animate-star3 {
   animation: star-pop-3 900ms ease-out forwards;
 }
