@@ -31,6 +31,11 @@ import ProfileHeaderLayout from '../../components/profile/ProfileHeaderLayout'
 import AboutCard from '../../components/profile/AboutCard'
 import SocialLinks from '../../components/profile/SocialLinks'
 import { ProfileHeaderSkeleton, PostSkeleton } from '../../components/ui/skeleton'
+import VerificationRequestForm from '../../components/profile/VerificationRequestForm'
+import VerificationStatus from '../../components/profile/VerificationStatus'
+import PostActionsExtra from '../../components/post/PostActionsExtra'
+import GalleryFilters, { type GalleryFilter } from '../../components/post/GalleryFilters'
+import useInfinitePosts from '../../hooks/useInfinitePosts'
 
 // ProfileData type is centralized in ./types to avoid circular imports and editor glitches
 
@@ -410,10 +415,27 @@ export default function ProfileTabs({
           </div>
         )}
 
-        {/* Gallery Toggle */}
-        {flags.galleryToggle && myPosts.length > 0 && (
-          <div className="mb-4 flex items-center justify-between">
-            <GalleryToggle mode={galleryView} onChange={setGalleryView} />
+        {/* Gallery Controls */}
+        {myPosts.length > 0 && (
+          <div className="mb-4 space-y-3">
+            {/* Gallery Toggle */}
+            {flags.galleryToggle && (
+              <div className="flex items-center justify-between">
+                <GalleryToggle mode={galleryView} onChange={setGalleryView} />
+              </div>
+            )}
+
+            {/* Gallery Filters */}
+            {flags.galleryFilters && galleryView === 'grid' && (
+              <GalleryFilters
+                activeFilter="all"
+                onFilterChange={() => {}}
+                hasPhotos={myPosts.some((p) => 'image_url' in p && p.image_url)}
+                hasVideos={false}
+                hasFeatured={false}
+                hasPinned={false}
+              />
+            )}
           </div>
         )}
 
@@ -425,6 +447,21 @@ export default function ProfileTabs({
             website={profile.website || undefined}
             interests={[]} // No interests field in current profile payload
           />
+        )}
+
+        {/* Verification Status & Request */}
+        {flags.verificationFlow && (
+          <div className="mb-6">
+            <VerificationStatus userId={userId} isVerified={false} />
+            {!false && ( // profile.is_verified not available yet
+              <VerificationRequestForm
+                userId={userId}
+                onSubmitted={() => {
+                  // Refresh verification status
+                }}
+              />
+            )}
+          </div>
         )}
 
         {/* Featured Media Grid */}

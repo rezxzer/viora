@@ -69,6 +69,30 @@ export const flags = {
    * NEXT_PUBLIC_ENABLE_SKELETONS=true
    */
   skeletons: process.env.NEXT_PUBLIC_ENABLE_SKELETONS === 'true',
+
+  /**
+   * Enable verification request flow
+   * NEXT_PUBLIC_ENABLE_VERIFICATION_FLOW=true
+   */
+  verificationFlow: process.env.NEXT_PUBLIC_ENABLE_VERIFICATION_FLOW === 'true',
+
+  /**
+   * Enable pinned/featured post management
+   * NEXT_PUBLIC_ENABLE_PINNED_MANAGEMENT=true
+   */
+  pinnedManagement: process.env.NEXT_PUBLIC_ENABLE_PINNED_MANAGEMENT === 'true',
+
+  /**
+   * Enable gallery filters (All/Photos/Videos/Featured/Pinned)
+   * NEXT_PUBLIC_ENABLE_GALLERY_FILTERS=true
+   */
+  galleryFilters: process.env.NEXT_PUBLIC_ENABLE_GALLERY_FILTERS === 'true',
+
+  /**
+   * Enable infinite scroll with cursor pagination
+   * NEXT_PUBLIC_ENABLE_INFINITE_SCROLL=true
+   */
+  infiniteScroll: process.env.NEXT_PUBLIC_ENABLE_INFINITE_SCROLL === 'true',
 } as const
 
 export type FeatureFlag = keyof typeof flags
