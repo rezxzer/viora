@@ -39,6 +39,36 @@ export const flags = {
    * NEXT_PUBLIC_ENABLE_MICRO_INTERACTIONS=true
    */
   microInteractions: process.env.NEXT_PUBLIC_ENABLE_MICRO_INTERACTIONS === 'true',
+
+  /**
+   * Enable enhanced stats badges (glass + glow)
+   * NEXT_PUBLIC_ENABLE_STATS_BADGES=true
+   */
+  statsBadges: process.env.NEXT_PUBLIC_ENABLE_STATS_BADGES === 'true',
+
+  /**
+   * Enable header layout variants (compact/extended)
+   * NEXT_PUBLIC_ENABLE_HEADER_LAYOUTS=true
+   */
+  headerLayouts: process.env.NEXT_PUBLIC_ENABLE_HEADER_LAYOUTS === 'true',
+
+  /**
+   * Enable about card with bio and interests
+   * NEXT_PUBLIC_ENABLE_ABOUT_CARD=true
+   */
+  aboutCard: process.env.NEXT_PUBLIC_ENABLE_ABOUT_CARD === 'true',
+
+  /**
+   * Enable social media links display
+   * NEXT_PUBLIC_ENABLE_SOCIAL_LINKS=true
+   */
+  socialLinks: process.env.NEXT_PUBLIC_ENABLE_SOCIAL_LINKS === 'true',
+
+  /**
+   * Enable skeleton loading states
+   * NEXT_PUBLIC_ENABLE_SKELETONS=true
+   */
+  skeletons: process.env.NEXT_PUBLIC_ENABLE_SKELETONS === 'true',
 } as const
 
 export type FeatureFlag = keyof typeof flags

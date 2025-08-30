@@ -3,6 +3,9 @@
 /* Import micro-interactions */
 @import '../../styles/micro.css';
 
+/* Import skeleton styles */
+@import '../../styles/skeleton.css';
+
 :root {
   /* Legacy tokens (kept for compatibility) */
   --background: #ffffff;

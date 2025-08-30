@@ -1,0 +1,78 @@
+/* Skeleton loading states */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-muted) 25%,
+    var(--color-elev) 37%,
+    var(--color-muted) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: var(--color-muted);
+  }
+}
+
+/* Skeleton variants */
+.skeleton-avatar {
+  @apply rounded-full;
+}
+
+.skeleton-text {
+  @apply rounded;
+}
+
+.skeleton-badge {
+  @apply rounded-full;
+}
+
+.skeleton-card {
+  @apply rounded-lg;
+}
+
+/* Profile header skeleton */
+.skeleton-header {
+  @apply h-28 w-full skeleton skeleton-card;
+}
+
+.skeleton-avatar-large {
+  @apply h-20 w-20 skeleton skeleton-avatar;
+}
+
+.skeleton-title {
+  @apply h-6 w-32 skeleton skeleton-text;
+}
+
+.skeleton-subtitle {
+  @apply h-4 w-24 skeleton skeleton-text;
+}
+
+.skeleton-bio {
+  @apply h-4 w-64 skeleton skeleton-text;
+}
+
+/* Stats skeleton */
+.skeleton-stat {
+  @apply h-8 w-20 skeleton skeleton-badge;
+}
+
+/* Post skeleton */
+.skeleton-post {
+  @apply h-32 w-full skeleton skeleton-card;
+}

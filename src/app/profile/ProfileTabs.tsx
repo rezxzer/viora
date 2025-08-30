@@ -26,6 +26,11 @@ import GalleryToggle from '../../components/profile/GalleryToggle'
 import PostGrid from '../../components/post/PostGrid'
 import VerificationBadge from '../../components/profile/VerificationBadge'
 import Ripple from '../../components/ui/Ripple'
+import StatsBadges from '../../components/profile/StatsBadges'
+import ProfileHeaderLayout from '../../components/profile/ProfileHeaderLayout'
+import AboutCard from '../../components/profile/AboutCard'
+import SocialLinks from '../../components/profile/SocialLinks'
+import { ProfileHeaderSkeleton, PostSkeleton } from '../../components/ui/skeleton'
 
 // ProfileData type is centralized in ./types to avoid circular imports and editor glitches
 
@@ -317,34 +322,52 @@ export default function ProfileTabs({
         <div className="flex flex-wrap gap-3 border-t px-4 py-3">
           {stats ? (
             <>
-              <button
-                onClick={() => setFollowersOpen(true)}
-                className="inline-flex items-center gap-2 rounded-full border bg-elev px-3 py-1 text-xs hover:bg-elev/80 transition-colors cursor-pointer"
-              >
-                <span className="font-medium">{stats.followers_count}</span>
-                <span className="text-muted-foreground">Followers</span>
-              </button>
-              <button
-                onClick={() => setFollowingOpen(true)}
-                className="inline-flex items-center gap-2 rounded-full border bg-elev px-3 py-1 text-xs hover:bg-elev/80 transition-colors cursor-pointer"
-              >
-                <span className="font-medium">{stats.following_count}</span>
-                <span className="text-muted-foreground">Following</span>
-              </button>
-              <div className="inline-flex items-center gap-2 rounded-full border bg-elev px-3 py-1 text-xs">
-                <span className="font-medium">{stats.posts_count}</span>
-                <span className="text-muted-foreground">Posts</span>
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-full border bg-elev px-3 py-1 text-xs">
-                <span className="font-medium">{stats.likes_received}</span>
-                <span className="text-muted-foreground">Likes received</span>
-              </div>
+              {flags.statsBadges ? (
+                <StatsBadges
+                  stats={{
+                    followers: stats.followers_count,
+                    following: stats.following_count,
+                    posts: stats.posts_count,
+                    likes: stats.likes_received,
+                  }}
+                  size="sm"
+                  onClick={{
+                    followers: () => setFollowersOpen(true),
+                    following: () => setFollowingOpen(true),
+                  }}
+                />
+              ) : (
+                <>
+                  <button
+                    onClick={() => setFollowersOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-full border bg-elev px-3 py-1 text-xs hover:bg-elev/80 transition-colors cursor-pointer"
+                  >
+                    <span className="font-medium">{stats.followers_count}</span>
+                    <span className="text-muted-foreground">Followers</span>
+                  </button>
+                  <button
+                    onClick={() => setFollowingOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-full border bg-elev px-3 py-1 text-xs hover:bg-elev/80 transition-colors cursor-pointer"
+                  >
+                    <span className="font-medium">{stats.following_count}</span>
+                    <span className="text-muted-foreground">Following</span>
+                  </button>
+                  <div className="inline-flex items-center gap-2 rounded-full border bg-elev px-3 py-1 text-xs">
+                    <span className="font-medium">{stats.posts_count}</span>
+                    <span className="text-muted-foreground">Posts</span>
+                  </div>
+                  <div className="inline-flex items-center gap-2 rounded-full border bg-elev px-3 py-1 text-xs">
+                    <span className="font-medium">{stats.likes_received}</span>
+                    <span className="text-muted-foreground">Likes received</span>
+                  </div>
+                </>
+              )}
             </>
           ) : (
             <div className="flex gap-2">
-              <Skeleton className="h-6 w-24 rounded-full" />
-              <Skeleton className="h-6 w-24 rounded-full" />
-              <Skeleton className="h-6 w-24 rounded-full" />
+              <div className="h-6 w-24 skeleton rounded-full" />
+              <div className="h-6 w-24 skeleton rounded-full" />
+              <div className="h-6 w-24 skeleton rounded-full" />
             </div>
           )}
         </div>
@@ -392,6 +415,16 @@ export default function ProfileTabs({
           <div className="mb-4 flex items-center justify-between">
             <GalleryToggle mode={galleryView} onChange={setGalleryView} />
           </div>
+        )}
+
+        {/* About Card */}
+        {flags.aboutCard && (
+          <AboutCard
+            bio={profile.bio || undefined}
+            location={profile.location || undefined}
+            website={profile.website || undefined}
+            interests={[]} // No interests field in current profile payload
+          />
         )}
 
         {/* Featured Media Grid */}
