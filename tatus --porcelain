@@ -1,0 +1,880 @@
+[1mdiff --git a/src/app/profile/ProfileTabs.tsx b/src/app/profile/ProfileTabs.tsx[m
+[1mindex 0a56260..c930c77 100644[m
+[1m--- a/src/app/profile/ProfileTabs.tsx[m
+[1m+++ b/src/app/profile/ProfileTabs.tsx[m
+[36m@@ -36,6 +36,8 @@[m [mimport VerificationStatus from '../../components/profile/VerificationStatus'[m
+ import PostActionsExtra from '../../components/post/PostActionsExtra'[m
+ import GalleryFilters, { type GalleryFilter } from '../../components/post/GalleryFilters'[m
+ import useInfinitePosts from '../../hooks/useInfinitePosts'[m
+[32m+[m[32mimport AvatarEditTrigger from '../../components/profile/AvatarEditTrigger'[m
+[32m+[m[32mimport AvatarEditDialog from '../../components/profile/AvatarEditDialog'[m
+ [m
+ // ProfileData type is centralized in ./types to avoid circular imports and editor glitches[m
+ [m
+[36m@@ -95,6 +97,7 @@[m [mexport default function ProfileTabs({[m
+   const [followersOpen, setFollowersOpen] = useState(false)[m
+   const [followingOpen, setFollowingOpen] = useState(false)[m
+   const [galleryView, setGalleryView] = useState<'list' | 'grid'>('list')[m
+[32m+[m[32m  const [avatarEditOpen, setAvatarEditOpen] = useState(false)[m
+ [m
+   const canFollow = showFollowButton && !!targetUserId && targetUserId !== userId[m
+   const authorIdForPosts = postsAuthorId || userId[m
+[36m@@ -167,13 +170,13 @@[m [mexport default function ProfileTabs({[m
+       const rows = (data as Row[]) || [][m
+       // Preserve existing counts where available[m
+       const countsMap = new Map<string, { likes_count: number; comments_count: number }>()[m
+[31m-      ;[...myPosts, ...initialPosts].forEach((p) => {[m
+[31m-        const key = p.post_id[m
+[31m-        countsMap.set(key, {[m
+[31m-          likes_count: p.likes_count ?? 0,[m
+[31m-          comments_count: p.comments_count ?? 0,[m
+[32m+[m[32m        ;[...myPosts, ...initialPosts].forEach((p) => {[m
+[32m+[m[32m          const key = p.post_id[m
+[32m+[m[32m          countsMap.set(key, {[m
+[32m+[m[32m            likes_count: p.likes_count ?? 0,[m
+[32m+[m[32m            comments_count: p.comments_count ?? 0,[m
+[32m+[m[32m          })[m
+         })[m
+[31m-      })[m
+       const mapped = rows.map((r) => {[m
+         const counts = countsMap.get(r.id) || { likes_count: 0, comments_count: 0 }[m
+         return {[m
+[36m@@ -242,7 +245,7 @@[m [mexport default function ProfileTabs({[m
+       className="w-full"[m
+     >[m
+       {/* Super header */}[m
+[31m-      <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft relative">[m
+[32m+[m[32m      <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft ring-1 ring-white/5 relative">[m
+         {/* Cover */}[m
+         <div className="h-28 w-full bg-gradient-to-r from-primary/25 to-primary/5 relative">[m
+           {flags.coverGradients && <CoverGradient variant="default" className="rounded-t-2xl" />}[m
+[36m@@ -253,6 +256,50 @@[m [mexport default function ProfileTabs({[m
+             {/* Avatar */}[m
+             {flags.avatarRing ? ([m
+               <AvatarRing status="online" size="lg">[m
+[32m+[m[32m                {!readOnly ? ([m
+[32m+[m[32m                  <AvatarEditTrigger onEdit={() => setAvatarEditOpen(true)}>[m
+[32m+[m[32m                    <div[m
+[32m+[m[32m                      className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft"[m
+[32m+[m[32m                      aria-hidden[m
+[32m+[m[32m                    >[m
+[32m+[m[32m                      {/* eslint-disable-next-line @next/next/no-img-element */}[m
+[32m+[m[32m                      <img[m
+[32m+[m[32m                        src={profile.avatar_url || '/avatar-placeholder.svg'}[m
+[32m+[m[32m                        alt="avatar"[m
+[32m+[m[32m                        className="h-full w-full object-cover"[m
+[32m+[m[32m                      />[m
+[32m+[m[32m                    </div>[m
+[32m+[m[32m                  </AvatarEditTrigger>[m
+[32m+[m[32m                ) : ([m
+[32m+[m[32m                  <div[m
+[32m+[m[32m                    className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft"[m
+[32m+[m[32m                    aria-hidden[m
+[32m+[m[32m                  >[m
+[32m+[m[32m                    {/* eslint-disable-next-line @next/next/no-img-element */}[m
+[32m+[m[32m                    <img[m
+[32m+[m[32m                      src={profile.avatar_url || '/avatar-placeholder.svg'}[m
+[32m+[m[32m                      alt="avatar"[m
+[32m+[m[32m                      className="h-full w-full object-cover"[m
+[32m+[m[32m                    />[m
+[32m+[m[32m                  </div>[m
+[32m+[m[32m                )}[m
+[32m+[m[32m              </AvatarRing>[m
+[32m+[m[32m            ) : ([m
+[32m+[m[32m              !readOnly ? ([m
+[32m+[m[32m                <AvatarEditTrigger onEdit={() => setAvatarEditOpen(true)}>[m
+[32m+[m[32m                  <div[m
+[32m+[m[32m                    className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft"[m
+[32m+[m[32m                    aria-hidden[m
+[32m+[m[32m                  >[m
+[32m+[m[32m                    {/* eslint-disable-next-line @next/next/no-img-element */}[m
+[32m+[m[32m                    <img[m
+[32m+[m[32m                      src={profile.avatar_url || '/avatar-placeholder.svg'}[m
+[32m+[m[32m                      alt="avatar"[m
+[32m+[m[32m                      className="h-full w-full object-cover"[m
+[32m+[m[32m                    />[m
+[32m+[m[32m                  </div>[m
+[32m+[m[32m                </AvatarEditTrigger>[m
+[32m+[m[32m              ) : ([m
+                 <div[m
+                   className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft"[m
+                   aria-hidden[m
+[36m@@ -264,19 +311,7 @@[m [mexport default function ProfileTabs({[m
+                     className="h-full w-full object-cover"[m
+                   />[m
+                 </div>[m
+[31m-              </AvatarRing>[m
+[31m-            ) : ([m
+[31m-              <div[m
+[31m-                className="h-20 w-20 overflow-hidden rounded-full border bg-elev shadow-soft"[m
+[31m-                aria-hidden[m
+[31m-              >[m
+[31m-                {/* eslint-disable-next-line @next/next/no-img-element */}[m
+[31m-                <img[m
+[31m-                  src={profile.avatar_url || '/avatar-placeholder.svg'}[m
+[31m-                  alt="avatar"[m
+[31m-                  className="h-full w-full object-cover"[m
+[31m-                />[m
+[31m-              </div>[m
+[32m+[m[32m              )[m
+             )}[m
+             {/* Name + bio */}[m
+             <div>[m
+[36m@@ -303,7 +338,11 @@[m [mexport default function ProfileTabs({[m
+               </Button>[m
+             ) : !readOnly ? ([m
+               <div className="flex items-center gap-2">[m
+[31m-                <Button variant="secondary" onClick={() => setTab('profile')}>[m
+[32m+[m[32m                <Button[m
+[32m+[m[32m                  variant="secondary"[m
+[32m+[m[32m                  onClick={() => setTab('profile')}[m
+[32m+[m[32m                  className="hover:ring-1 hover:ring-primary/30 transition-all"[m
+[32m+[m[32m                >[m
+                   Edit profile[m
+                 </Button>[m
+                 <Button[m
+[36m@@ -313,8 +352,9 @@[m [mexport default function ProfileTabs({[m
+                     try {[m
+                       const el = document.getElementById('profile-composer')[m
+                       el?.scrollIntoView({ behavior: 'smooth', block: 'start' })[m
+[31m-                    } catch {}[m
+[32m+[m[32m                    } catch { }[m
+                   }}[m
+[32m+[m[32m                  className="hover:ring-1 hover:ring-primary/30 transition-all"[m
+                 >[m
+                   Upload media[m
+                 </Button>[m
+[36m@@ -324,7 +364,7 @@[m [mexport default function ProfileTabs({[m
+         </div>[m
+ [m
+         {/* Chips row */}[m
+[31m-        <div className="flex flex-wrap gap-3 border-t px-4 py-3">[m
+[32m+[m[32m        <div className="flex flex-wrap gap-3 border-t px-4 py-3 mt-3 md:mt-4">[m
+           {stats ? ([m
+             <>[m
+               {flags.statsBadges ? ([m
+[36m@@ -429,7 +469,7 @@[m [mexport default function ProfileTabs({[m
+             {flags.galleryFilters && galleryView === 'grid' && ([m
+               <GalleryFilters[m
+                 activeFilter="all"[m
+[31m-                onFilterChange={() => {}}[m
+[32m+[m[32m                onFilterChange={() => { }}[m
+                 hasPhotos={myPosts.some((p) => 'image_url' in p && p.image_url)}[m
+                 hasVideos={false}[m
+                 hasFeatured={false}[m
+[36m@@ -446,6 +486,8 @@[m [mexport default function ProfileTabs({[m
+             location={profile.location || undefined}[m
+             website={profile.website || undefined}[m
+             interests={[]} // No interests field in current profile payload[m
+[32m+[m[32m            isOwner={!readOnly && viewerId === userId}[m
+[32m+[m[32m            onEditProfile={() => setTab('profile')}[m
+           />[m
+         )}[m
+ [m
+[36m@@ -623,6 +665,12 @@[m [mexport default function ProfileTabs({[m
+         type="following"[m
+         viewerId={viewerId}[m
+       />[m
+[32m+[m[32m      <AvatarEditDialog[m
+[32m+[m[32m        userId={userId}[m
+[32m+[m[32m        initialUrl={profile.avatar_url}[m
+[32m+[m[32m        open={avatarEditOpen}[m
+[32m+[m[32m        onOpenChange={setAvatarEditOpen}[m
+[32m+[m[32m      />[m
+     </Tabs>[m
+   )[m
+ }[m
+[1mdiff --git a/src/components/profile/AboutCard.tsx b/src/components/profile/AboutCard.tsx[m
+[1mindex 010acfc..27359ca 100644[m
+[1m--- a/src/components/profile/AboutCard.tsx[m
+[1m+++ b/src/components/profile/AboutCard.tsx[m
+[36m@@ -1,19 +1,29 @@[m
+ 'use client'[m
+ [m
+[31m-import { MapPin, Globe, Tag } from 'lucide-react'[m
+[32m+[m[32mimport { MapPin, Globe, Tag, Plus } from 'lucide-react'[m
+ import { Card } from '@/components/ui/card'[m
+[32m+[m[32mimport { Button } from '@/components/ui/button'[m
+ [m
+ type AboutCardProps = {[m
+   bio?: string[m
+   location?: string[m
+   website?: string[m
+   interests?: string[][m
+[32m+[m[32m  isOwner?: boolean[m
+[32m+[m[32m  onEditProfile?: () => void[m
+ }[m
+ [m
+[31m-export default function AboutCard({ bio, location, website, interests }: AboutCardProps) {[m
+[32m+[m[32mexport default function AboutCard({[m
+[32m+[m[32m  bio,[m
+[32m+[m[32m  location,[m
+[32m+[m[32m  website,[m
+[32m+[m[32m  interests,[m
+[32m+[m[32m  isOwner = false,[m
+[32m+[m[32m  onEditProfile[m
+[32m+[m[32m}: AboutCardProps) {[m
+   const hasContent = bio || location || website || (interests && interests.length > 0)[m
+ [m
+[31m-  if (!hasContent) {[m
+[32m+[m[32m  if (!hasContent && !isOwner) {[m
+     return null[m
+   }[m
+ [m
+[36m@@ -26,22 +36,46 @@[m [mexport default function AboutCard({ bio, location, website, interests }: AboutCa[m
+ [m
+       <div className="space-y-4">[m
+         {/* Bio */}[m
+[31m-        {bio && ([m
+[32m+[m[32m        {bio ? ([m
+           <div>[m
+             <p className="text-muted-foreground leading-relaxed">{bio}</p>[m
+           </div>[m
+[31m-        )}[m
+[32m+[m[32m        ) : isOwner ? ([m
+[32m+[m[32m          <Button[m
+[32m+[m[32m            variant="ghost"[m
+[32m+[m[32m            size="sm"[m
+[32m+[m[32m            onClick={onEditProfile}[m
+[32m+[m[32m            className="h-auto p-0 text-muted-foreground hover:text-foreground justify-start"[m
+[32m+[m[32m            aria-label="Add bio"[m
+[32m+[m[32m            title="Add bio"[m
+[32m+[m[32m          >[m
+[32m+[m[32m            <Plus className="h-4 w-4 mr-2" />[m
+[32m+[m[32m            Add bio[m
+[32m+[m[32m          </Button>[m
+[32m+[m[32m        ) : null}[m
+ [m
+         {/* Location & Website */}[m
+         <div className="flex flex-col sm:flex-row gap-4 text-sm">[m
+[31m-          {location && ([m
+[32m+[m[32m          {location ? ([m
+             <div className="flex items-center gap-2 text-muted-foreground">[m
+               <MapPin className="h-4 w-4" />[m
+               <span>{location}</span>[m
+             </div>[m
+[31m-          )}[m
+[32m+[m[32m          ) : isOwner ? ([m
+[32m+[m[32m            <Button[m
+[32m+[m[32m              variant="ghost"[m
+[32m+[m[32m              size="sm"[m
+[32m+[m[32m              onClick={onEditProfile}[m
+[32m+[m[32m              className="h-auto p-0 text-muted-foreground hover:text-foreground justify-start"[m
+[32m+[m[32m              aria-label="Add location"[m
+[32m+[m[32m              title="Add location"[m
+[32m+[m[32m            >[m
+[32m+[m[32m              <Plus className="h-4 w-4 mr-2" />[m
+[32m+[m[32m              Add location[m
+[32m+[m[32m            </Button>[m
+[32m+[m[32m          ) : null}[m
+ [m
+[31m-          {website && ([m
+[32m+[m[32m          {website ? ([m
+             <div className="flex items-center gap-2">[m
+               <Globe className="h-4 w-4 text-primary" />[m
+               <a[m
+[36m@@ -53,7 +87,19 @@[m [mexport default function AboutCard({ bio, location, website, interests }: AboutCa[m
+                 {website.replace(/^https?:\/\//, '')}[m
+               </a>[m
+             </div>[m
+[31m-          )}[m
+[32m+[m[32m          ) : isOwner ? ([m
+[32m+[m[32m            <Button[m
+[32m+[m[32m              variant="ghost"[m
+[32m+[m[32m              size="sm"[m
+[32m+[m[32m              onClick={onEditProfile}[m
+[32m+[m[32m              className="h-auto p-0 text-muted-foreground hover:text-foreground justify-start"[m
+[32m+[m[32m              aria-label="Add website"[m
+[32m+[m[32m              title="Add website"[m
+[32m+[m[32m            >[m
+[32m+[m[32m              <Plus className="h-4 w-4 mr-2" />[m
+[32m+[m[32m              Add website[m
+[32m+[m[32m            </Button>[m
+[32m+[m[32m          ) : null}[m
+         </div>[m
+ [m
+         {/* Interests */}[m
+[1mdiff --git a/src/components/profile/GalleryToggle.tsx b/src/components/profile/GalleryToggle.tsx[m
+[1mindex 124ff4f..e6f1749 100644[m
+[1m--- a/src/components/profile/GalleryToggle.tsx[m
+[1m+++ b/src/components/profile/GalleryToggle.tsx[m
+[36m@@ -2,6 +2,7 @@[m
+ [m
+ import { Button } from '@/components/ui/button'[m
+ import { List, Grid3X3 } from 'lucide-react'[m
+[32m+[m[32mimport { useEffect, useState } from 'react'[m
+ [m
+ type GalleryToggleProps = {[m
+   mode: 'list' | 'grid'[m
+[36m@@ -9,25 +10,69 @@[m [mtype GalleryToggleProps = {[m
+ }[m
+ [m
+ export default function GalleryToggle({ mode, onChange }: GalleryToggleProps) {[m
+[32m+[m[32m  const [localMode, setLocalMode] = useState(mode)[m
+[32m+[m
+[32m+[m[32m  // Load persisted mode from localStorage[m
+[32m+[m[32m  useEffect(() => {[m
+[32m+[m[32m    const persisted = localStorage.getItem('profile.galleryMode') as 'list' | 'grid' | null[m
+[32m+[m[32m    if (persisted && (persisted === 'list' || persisted === 'grid')) {[m
+[32m+[m[32m      setLocalMode(persisted)[m
+[32m+[m[32m      onChange(persisted)[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }, [onChange])[m
+[32m+[m
+[32m+[m[32m  // Persist mode changes[m
+[32m+[m[32m  useEffect(() => {[m
+[32m+[m[32m    localStorage.setItem('profile.galleryMode', localMode)[m
+[32m+[m[32m  }, [localMode])[m
+[32m+[m
+[32m+[m[32m  const handleModeChange = (newMode: 'list' | 'grid') => {[m
+[32m+[m[32m    setLocalMode(newMode)[m
+[32m+[m[32m    onChange(newMode)[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  const handleKeyDown = (event: React.KeyboardEvent, newMode: 'list' | 'grid') => {[m
+[32m+[m[32m    if (event.key === 'Enter' || event.key === ' ') {[m
+[32m+[m[32m      event.preventDefault()[m
+[32m+[m[32m      handleModeChange(newMode)[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m
+   return ([m
+[31m-    <div className="flex items-center gap-1 rounded-lg border bg-surface p-1">[m
+[32m+[m[32m    <div[m
+[32m+[m[32m      className="flex items-center gap-1 rounded-lg border bg-surface p-1"[m
+[32m+[m[32m      role="tablist"[m
+[32m+[m[32m      aria-label="Gallery view options"[m
+[32m+[m[32m    >[m
+       <Button[m
+[31m-        variant={mode === 'list' ? 'default' : 'ghost'}[m
+[32m+[m[32m        variant={localMode === 'list' ? 'default' : 'ghost'}[m
+         size="sm"[m
+[31m-        onClick={() => onChange('list')}[m
+[31m-        aria-pressed={mode === 'list'}[m
+[32m+[m[32m        onClick={() => handleModeChange('list')}[m
+[32m+[m[32m        onKeyDown={(e) => handleKeyDown(e, 'list')}[m
+[32m+[m[32m        role="tab"[m
+[32m+[m[32m        aria-selected={localMode === 'list'}[m
+         aria-label="List view"[m
+[31m-        className="h-8 px-2"[m
+[32m+[m[32m        title="List view"[m
+[32m+[m[32m        className={`h-8 px-2 transition-all ${localMode === 'list'[m
+[32m+[m[32m          ? 'font-semibold bg-primary text-primary-foreground shadow-sm'[m
+[32m+[m[32m          : 'hover:bg-muted/50'[m
+[32m+[m[32m          }`}[m
+       >[m
+         <List className="h-4 w-4" />[m
+       </Button>[m
+       <Button[m
+[31m-        variant={mode === 'grid' ? 'default' : 'ghost'}[m
+[32m+[m[32m        variant={localMode === 'grid' ? 'default' : 'ghost'}[m
+         size="sm"[m
+[31m-        onClick={() => onChange('grid')}[m
+[31m-        aria-pressed={mode === 'grid'}[m
+[32m+[m[32m        onClick={() => handleModeChange('grid')}[m
+[32m+[m[32m        onKeyDown={(e) => handleKeyDown(e, 'grid')}[m
+[32m+[m[32m        role="tab"[m
+[32m+[m[32m        aria-selected={localMode === 'grid'}[m
+         aria-label="Grid view"[m
+[31m-        className="h-8 px-2"[m
+[32m+[m[32m        title="Grid view"[m
+[32m+[m[32m        className={`h-8 px-2 transition-all ${localMode === 'grid'[m
+[32m+[m[32m          ? 'font-semibold bg-primary text-primary-foreground shadow-sm'[m
+[32m+[m[32m          : 'hover:bg-muted/50'[m
+[32m+[m[32m          }`}[m
+       >[m
+         <Grid3X3 className="h-4 w-4" />[m
+       </Button>[m
+[1mdiff --git a/src/components/profile/ProfileHeaderLayout.tsx b/src/components/profile/ProfileHeaderLayout.tsx[m
+[1mindex c20eb40..c9ac53c 100644[m
+[1m--- a/src/components/profile/ProfileHeaderLayout.tsx[m
+[1m+++ b/src/components/profile/ProfileHeaderLayout.tsx[m
+[36m@@ -21,7 +21,7 @@[m [mexport default function ProfileHeaderLayout({[m
+ }: ProfileHeaderLayoutProps) {[m
+   if (mode === 'compact') {[m
+     return ([m
+[31m-      <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft">[m
+[32m+[m[32m      <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft ring-1 ring-white/5">[m
+         {/* Compact cover */}[m
+         <div className="h-20 w-full bg-gradient-to-r from-primary/25 to-primary/5 relative">[m
+           {children}[m
+[36m@@ -44,7 +44,7 @@[m [mexport default function ProfileHeaderLayout({[m
+ [m
+   // Extended layout[m
+   return ([m
+[31m-    <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft">[m
+[32m+[m[32m    <div className="mb-6 overflow-hidden rounded-2xl border bg-surface shadow-soft ring-1 ring-white/5">[m
+       {/* Extended cover */}[m
+       <div className="h-32 w-full bg-gradient-to-r from-primary/25 to-primary/5 relative">[m
+         {children}[m
+[1mdiff --git a/src/components/profile/StatsBadges.tsx b/src/components/profile/StatsBadges.tsx[m
+[1mindex ccc390d..77174a1 100644[m
+[1m--- a/src/components/profile/StatsBadges.tsx[m
+[1m+++ b/src/components/profile/StatsBadges.tsx[m
+[36m@@ -27,41 +27,62 @@[m [mexport default function StatsBadges({ stats, size = 'md', onClick }: StatsBadges[m
+     md: 'h-4 w-4',[m
+   }[m
+ [m
+[31m-  const badgeClasses = `${sizeClasses[size]} flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm text-white shadow-lg transition-all duration-200 hover:bg-white/20 hover:scale-105`[m
+[32m+[m[32m  const baseBadgeClasses = `${sizeClasses[size]} flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm text-white shadow-lg transition-all duration-200`[m
+[32m+[m
+[32m+[m[32m  const clickableClasses = `${baseBadgeClasses} hover:bg-white/20 hover:scale-105 cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/40 focus:ring-offset-2 focus:ring-offset-black/20`[m
+[32m+[m[32m  const staticClasses = `${baseBadgeClasses} cursor-default`[m
+ [m
+   return ([m
+     <div className="flex flex-wrap gap-2">[m
+       {/* Followers */}[m
+[31m-      <button[m
+[31m-        onClick={onClick?.followers}[m
+[31m-        className={`${badgeClasses} ${onClick?.followers ? 'cursor-pointer' : 'cursor-default'}`}[m
+[31m-        aria-label={`${stats.followers} followers`}[m
+[31m-      >[m
+[31m-        <Users className={iconSizes[size]} />[m
+[31m-        <span className="font-medium">{stats.followers}</span>[m
+[31m-        <span className="text-white/80">Followers</span>[m
+[31m-      </button>[m
+[32m+[m[32m      {onClick?.followers ? ([m
+[32m+[m[32m        <button[m
+[32m+[m[32m          onClick={onClick.followers}[m
+[32m+[m[32m          className={clickableClasses}[m
+[32m+[m[32m          aria-label={`Open followers - ${stats.followers} followers`}[m
+[32m+[m[32m          title="Open followers"[m
+[32m+[m[32m        >[m
+[32m+[m[32m          <Users className={iconSizes[size]} />[m
+[32m+[m[32m          <span className="font-medium">{stats.followers}</span>[m
+[32m+[m[32m          <span className="text-white/80">Followers</span>[m
+[32m+[m[32m        </button>[m
+[32m+[m[32m      ) : ([m
+[32m+[m[32m        <div className={staticClasses} aria-label={`${stats.followers} followers`}>[m
+[32m+[m[32m          <Users className={iconSizes[size]} />[m
+[32m+[m[32m          <span className="font-medium">{stats.followers}</span>[m
+[32m+[m[32m          <span className="text-white/80">Followers</span>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m      )}[m
+ [m
+       {/* Following */}[m
+[31m-      <button[m
+[31m-        onClick={onClick?.following}[m
+[31m-        className={`${badgeClasses} ${onClick?.following ? 'cursor-pointer' : 'cursor-default'}`}[m
+[31m-        aria-label={`${stats.following} following`}[m
+[31m-      >[m
+[31m-        <UserPlus className={iconSizes[size]} />[m
+[31m-        <span className="font-medium">{stats.following}</span>[m
+[31m-        <span className="text-white/80">Following</span>[m
+[31m-      </button>[m
+[32m+[m[32m      {onClick?.following ? ([m
+[32m+[m[32m        <button[m
+[32m+[m[32m          onClick={onClick.following}[m
+[32m+[m[32m          className={clickableClasses}[m
+[32m+[m[32m          aria-label={`Open following - ${stats.following} following`}[m
+[32m+[m[32m          title="Open following"[m
+[32m+[m[32m        >[m
+[32m+[m[32m          <UserPlus className={iconSizes[size]} />[m
+[32m+[m[32m          <span className="font-medium">{stats.following}</span>[m
+[32m+[m[32m          <span className="text-white/80">Following</span>[m
+[32m+[m[32m        </button>[m
+[32m+[m[32m      ) : ([m
+[32m+[m[32m        <div className={staticClasses} aria-label={`${stats.following} following`}>[m
+[32m+[m[32m          <UserPlus className={iconSizes[size]} />[m
+[32m+[m[32m          <span className="font-medium">{stats.following}</span>[m
+[32m+[m[32m          <span className="text-white/80">Following</span>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m      )}[m
+ [m
+       {/* Posts */}[m
+[31m-      <div className={badgeClasses} aria-label={`${stats.posts} posts`}>[m
+[32m+[m[32m      <div className={staticClasses} aria-label={`${stats.posts} posts`}>[m
+         <FileText className={iconSizes[size]} />[m
+         <span className="font-medium">{stats.posts}</span>[m
+         <span className="text-white/80">Posts</span>[m
+       </div>[m
+ [m
+       {/* Likes */}[m
+[31m-      <div className={badgeClasses} aria-label={`${stats.likes} likes received`}>[m
+[32m+[m[32m      <div className={staticClasses} aria-label={`${stats.likes} likes received`}>[m
+         <Heart className={iconSizes[size]} />[m
+         <span className="font-medium">{stats.likes}</span>[m
+         <span className="text-white/80">Likes</span>[m
+warning: in the working copy of 'db/maintenance/310_improve_streams_public_access.sql', CRLF will be replaced by LF the next time Git touches it
+[1mdiff --git a/.cursor/agent.json b/.cursor/agent.json[m
+[1mnew file mode 100644[m
+[1mindex 0000000..759ec4f[m
+[1m--- /dev/null[m
+[1m+++ b/.cursor/agent.json[m
+[36m@@ -0,0 +1,12 @@[m
+[32m+[m[32m{[m
+[32m+[m[32m  "$schema": "https://raw.githubusercontent.com/getcursor/cursorrules/main/schema/agent.schema.json",[m
+[32m+[m[32m  "name": "ViORA Agent",[m
+[32m+[m[32m  "description": "Agent for ViORA project (Next.js + Supabase). Always follow .cursorrules.",[m
+[32m+[m[32m  "rules": [[m
+[32m+[m[32m    "Always follow .cursorrules file at project root.",[m
+[32m+[m[32m    "Never lose project context after restart.",[m
+[32m+[m[32m    "Code = ENGLISH, Explanations = GEORGIAN.",[m
+[32m+[m[32m    "Supabase schema updates must be printed as explicit SQL blocks.",[m
+[32m+[m[32m    "Keep tasks atomic (1 change per step)."[m
+[32m+[m[32m  ][m
+[32m+[m[32m}[m
+[1mdiff --git a/.cursorignore b/.cursorignore[m
+[1mnew file mode 100644[m
+[1mindex 0000000..9bf7f65[m
+[1m--- /dev/null[m
+[1m+++ b/.cursorignore[m
+[36m@@ -0,0 +1,18 @@[m
+[32m+[m[32m# .cursorignore[m
+[32m+[m
+[32m+[m[32m# Never read/write these folders[m
+[32m+[m[32mnode_modules[m
+[32m+[m[32m.next[m
+[32m+[m[32mdist[m
+[32m+[m[32mbuild[m
+[32m+[m
+[32m+[m[32m# Sensitive files[m
+[32m+[m[32m.env[m
+[32m+[m[32m.env.*[m
+[32m+[m[32m*.lock[m
+[32m+[m
+[32m+[m[32m# Git[m
+[32m+[m[32m.git[m
+[32m+[m[32m.gitignore[m
+[32m+[m
+[32m+[m
+[1mdiff --git a/.cursorrules b/.cursorrules[m
+[1mnew file mode 100644[m
+[1mindex 0000000..e7d6c1e[m
+[1m--- /dev/null[m
+[1m+++ b/.cursorrules[m
+[36m@@ -0,0 +1,33 @@[m
+[32m+[m[32m# .cursorrules[m
+[32m+[m
+[32m+[m[32m# Project: ViORA (Next.js 14 + Tailwind + shadcn/ui + Supabase)[m
+[32m+[m[32m# House rules (VERY IMPORTANT):[m
+[32m+[m[32m- Code is always written in ENGLISH. Explanations to the user are in GEORGIAN.[m
+[32m+[m[32m- When adding/updating any Supabase table/policy/bucket:[m
+[32m+[m[32m  (1) Output a clear SQL block titled „ეს კოდი ჩასასმელია Supabase-ში”.[m
+[32m+[m[32m  (2) Never silently change schema in app code. Always show the SQL explicitly.[m
+[32m+[m[32m- Keep messages to the agent short & atomic; one task per step.[m
+[32m+[m
+[32m+[m[32m# Tech constraints:[m
+[32m+[m[32m- Next.js App Router, TypeScript, Tailwind v4 tokens already defined[m
+[32m+[m[32m- Supabase auth/storage already wired; use existing clients (browser/server)[m
+[32m+[m[32m- DB schema lives under /db (schema/seed/maintenance). Do not invent new tables unless asked.[m
+[32m+[m
+[32m+[m[32m# UX conventions:[m
+[32m+[m[32m- Rounded-2xl, soft shadows, tokenized colors (surface/elev/border/primary)[m
+[32m+[m[32m- A11y first; keyboard + SR labels; respect prefers-reduced-motion[m
+[32m+[m
+[32m+[m[32m# File hygiene:[m
+[32m+[m[32m- Place any new SQL in /db/schema or /db/maintenance and print the exact block for Supabase.[m
+[32m+[m[32m- No noisy refactors; keep PR-sized atomic diffs with clear commit messages.[m
+[32m+[m
+[32m+[m[32m# Critical pages:[m
+[32m+[m[32m- /feed shows posts (server fetch + pagination + composer)[m
+[32m+[m[32m- /profile has tabs: Profile, Account, Privacy, Monetization (premium)[m
+[32m+[m[32m- Reactions include the premium gold “VIORA” button (special styling, optional paywall)[m
+[32m+[m
+[32m+[m[32m# What NOT to do:[m
+[32m+[m[32m- Don’t hardcode secrets.[m
+[32m+[m[32m- Don’t rely on Supabase Dashboard snippets; DB changes are repo-managed.[m
+[32m+[m
+[32m+[m
+[1mdiff --git a/.devcontainer/devcontainer.json b/.devcontainer/devcontainer.json[m
+[1mnew file mode 100644[m
+[1mindex 0000000..9a29d41[m
+[1m--- /dev/null[m
+[1m+++ b/.devcontainer/devcontainer.json[m
+[36m@@ -0,0 +1,14 @@[m
+[32m+[m[32m{[m
+[32m+[m[32m  "name": "ViORA Dev",[m
+[32m+[m[32m  "image": "mcr.microsoft.com/devcontainers/typescript-node:18",[m
+[32m+[m[32m  "features": {},[m
+[32m+[m[32m  "postCreateCommand": "pnpm install",[m
+[32m+[m[32m  "customizations": {[m
+[32m+[m[32m    "vscode": {[m
+[32m+[m[32m      "settings": {[m
+[32m+[m[32m        "editor.formatOnSave": true[m
+[32m+[m[32m      },[m
+[32m+[m[32m      "extensions": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"][m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[32m}[m
+[1mdiff --git a/.editorconfig b/.editorconfig[m
+[1mnew file mode 100644[m
+[1mindex 0000000..2a5f5b3[m
+[1m--- /dev/null[m
+[1m+++ b/.editorconfig[m
+[36m@@ -0,0 +1,16 @@[m
+[32m+[m[32m# EditorConfig helps maintain consistent coding styles[m
+[32m+[m[32mroot = true[m
+[32m+[m
+[32m+[m[32m[*][m
+[32m+[m[32mcharset = utf-8[m
+[32m+[m[32mindent_style = space[m
+[32m+[m[32mindent_size = 2[m
+[32m+[m[32mend_of_line = lf[m
+[32m+[m[32minsert_final_newline = true[m
+[32m+[m[32mtrim_trailing_whitespace = true[m
+[32m+[m
+[32m+[m[32m[*.md][m
+[32m+[m[32mmax_line_length = off[m
+[32m+[m[32mtrim_trailing_whitespace = false[m
+[32m+[m
+[32m+[m
+[1mdiff --git a/.gitattributes b/.gitattributes[m
+[1mnew file mode 100644[m
+[1mindex 0000000..0dec489[m
+[1m--- /dev/null[m
+[1m+++ b/.gitattributes[m
+[36m@@ -0,0 +1,14 @@[m
+[32m+[m[32m* text=auto eol=lf[m
+[32m+[m
+[32m+[m[32m# Images/binaries[m
+[32m+[m[32m*.png binary[m
+[32m+[m[32m*.jpg binary[m
+[32m+[m[32m*.jpeg binary[m
+[32m+[m[32m*.gif binary[m
+[32m+[m[32m*.svg text eol=lf[m
+[32m+[m
+[32m+[m[32m# Windows scripts keep CRLF if ever added later[m
+[32m+[m[32m*.bat text eol=crlf[m
+[32m+[m[32m*.cmd text eol=crlf[m
+[32m+[m
+[32m+[m
+[1mdiff --git a/.husky/pre-commit b/.husky/pre-commit[m
+[1mnew file mode 100644[m
+[1mindex 0000000..89d32c3[m
+[1m--- /dev/null[m
+[1m+++ b/.husky/pre-commit[m
+[36m@@ -0,0 +1,6 @@[m
+[32m+[m[32m#!/usr/bin/env sh[m
+[32m+[m[32m. "$(dirname -- "$0")/_/husky.sh"[m
+[32m+[m
+[32m+[m[32mnpx lint-staged[m
+[32m+[m
+[32m+[m
+[1mdiff --git a/.prettierrc b/.prettierrc[m
+[1mnew file mode 100644[m
+[1mindex 0000000..2924079[m
+[1m--- /dev/null[m
+[1m+++ b/.prettierrc[m
+[36m@@ -0,0 +1,6 @@[m
+[32m+[m[32m{[m
+[32m+[m[32m  "semi": false,[m
+[32m+[m[32m  "singleQuote": true,[m
+[32m+[m[32m  "printWidth": 100,[m
+[32m+[m[32m  "trailingComma": "es5"[m
+[32m+[m[32m}[m
+[1mdiff --git a/.sql/profiles.sql b/.sql/profiles.sql[m
+[1mnew file mode 100644[m
+[1mindex 0000000..9da648c[m
+[1m--- /dev/null[m
+[1m+++ b/.sql/profiles.sql[m
+[36m@@ -0,0 +1,59 @@[m
+[32m+[m[32m-- =========================================[m
+[32m+[m[32m-- ეს კოდი ჩასასმელია Supabase-ში[m
+[32m+[m[32m-- ეს ცვლის არსებულ ობიექტებს: (თუ უკვე არსებობდა იგივე სახელის policy/trigger, ის შეიცვლება)[m
+[32m+[m[32m-- =========================================[m
+[32m+[m
+[32m+[m[32m-- 1) updated_at helper (idempotent)[m
+[32m+[m[32mcreate or replace function public.set_updated_at()[m
+[32m+[m[32mreturns trigger[m
+[32m+[m[32mlanguage plpgsql[m
+[32m+[m[32mas $$[m
+[32m+[m[32mbegin[m
+[32m+[m[32m  new.updated_at = now();[m
+[32m+[m[32m  return new;[m
+[32m+[m[32mend;[m
+[32m+[m[32m$$;[m
+[32m+[m
+[32m+[m[32m-- lock down function search_path for safety/linter[m
+[32m+[m[32malter function public.set_updated_at() set search_path = public, pg_temp;[m
+[32m+[m
+[32m+[m[32m-- 2) profiles table (idempotent)[m
+[32m+[m[32mcreate table if not exists public.profiles ([m
+[32m+[m[32m  id uuid primary key references auth.users(id) on delete cascade,[m
+[32m+[m[32m  username text unique,[m
+[32m+[m[32m  full_name text,[m
+[32m+[m[32m  avatar_url text,[m
+[32m+[m[32m  bio text,[m
+[32m+[m[32m  created_at timestamptz default now(),[m
+[32m+[m[32m  updated_at timestamptz default now()[m
+[32m+[m[32m);[m
+[32m+[m
+[32m+[m[32m-- 3) updated_at trigger (replace if exists)[m
+[32m+[m[32mdrop trigger if exists tr_profiles_updated_at on public.profiles;[m
+[32m+[m[32mcreate trigger tr_profiles_updated_at[m
+[32m+[m[32mbefore update on public.profiles[m
+[32m+[m[32mfor each row execute function public.set_updated_at();[m
+[32m+[m
+[32m+[m[32m-- 4) Enable RLS[m
+[32m+[m[32malter table public.profiles enable row level security;[m
+[32m+[m
+[32m+[m[32m-- 5) Policies (replace if exist)[m
+[32m+[m[32mdrop policy if exists "profiles_public_read" on public.profiles;[m
+[32m+[m[32mcreate policy "profiles_public_read"[m
+[32m+[m[32m  on public.profiles[m
+[32m+[m[32m  for select[m
+[32m+[m[32m  using (true);[m
+[32m+[m
+[32m+[m[32mdrop policy if exists "profiles_insert_own" on public.profiles;[m
+[32m+[m[32mcreate policy "profiles_insert_own"[m
+[32m+[m[32m  on public.profiles[m
+[32m+[m[32m  for insert[m
+[32m+[m[32m  with check (auth.uid() = id);[m
+[32m+[m
+[32m+[m[32mdrop policy if exists "profiles_update_own" on public.profiles;[m
+[32m+[m[32mcreate policy "profiles_update_own"[m
+[32m+[m[32m  on public.profiles[m
+[32m+[m[32m  for update[m
+[32m+[m[32m  using (auth.uid() = id);[m
+[32m+[m
+[32m+[m
+[1mdiff --git a/.sql/stats.sql b/.sql/stats.sql[m
+[1mnew file mode 100644[m
+[1mindex 0000000..fc4407d[m
+[1m--- /dev/null[m
+[1m+++ b/.sql/stats.sql[m
+[36m@@ -0,0 +1,112 @@[m
+[32m+[m[32m-- Stats views & RPCs for VIORA[m
+[32m+[m[32m-- This file is versioned in the repo; run it in Supabase SQL Editor to apply.[m
+[32m+[m
+[32m+[m[32m-- SECURITY: make the view run with caller's privileges (respect RLS)[m
+[32m+[m[32mcreate or replace view public.v_post_stats[m
+[32m+[m[32mwith (security_invoker = true)[m
+[32m+[m[32mas[m
+[32m+[m[32mselect[m
+[32m+[m[32m  p.id                  as post_id,[m
+[32m+[m[32m  p.author_id,[m
+[32m+[m[32m  coalesce(pl.cnt, 0)   as likes_count,[m
+[32m+[m[32m  coalesce(pc.cnt, 0)   as comments_count,[m
+[32m+[m[32m  p.created_at[m
+[32m+[m[32mfrom public.posts p[m
+[32m+[m[32mleft join ([m
+[32m+[m[32m  select post_id, count(*)::int as cnt[m
+[32m+[m[32m  from public.post_likes[m
+[32m+[m[32m  group by post_id[m
+[32m+[m[32m) pl on pl.post_id = p.id[m
+[32m+[m[32mleft join ([m
+[32m+[m[32m  select post_id, count(*)::int as cnt[m
+[32m+[m[32m  from public.post_comments[m
+[32m+[m[32m  group by post_id[m
+[32m+[m[32m) pc on pc.post_id = p.id;[m
+[32m+[m
+[32m+[m[32m--    likes_received = sum(likes on user's posts)[m
+[32m+[m[32mcreate or replace view public.v_profile_stats[m
+[32m+[m[32mwith (security_invoker = true)[m
+[32m+[m[32mas[m
+[32m+[m[32mselect[m
+[32m+[m[32m  pr.id                       as user_id,[m
+[32m+[m[32m  coalesce(fwers.cnt, 0)      as followers_count,[m
+[32m+[m[32m  coalesce(fwing.cnt, 0)      as following_count,[m
+[32m+[m[32m  coalesce(pp.cnt, 0)         as posts_count,[m
+[32m+[m[32m  coalesce(likes.cnt, 0)      as likes_received,[m
+[32m+[m[32m  max(p.created_at)           as last_post_at[m
+[32m+[m[32mfrom public.profiles pr[m
+[32m+[m[32mleft join ([m
+[32m+[m[32m  select followee_id, count(*)::int as cnt[m
+[32m+[m[32m  from public.follows[m
+[32m+[m[32m  group by followee_id[m
+[32m+[m[32m) fwers on fwers.followee_id = pr.id[m
+[32m+[m[32mleft join ([m
+[32m+[m[32m  select follower_id, count(*)::int as cnt[m
+[32m+[m[32m  from public.follows[m
+[32m+[m[32m  group by follower_id[m
+[32m+[m[32m) fwing on fwing.follower_id = pr.id[m
+[32m+[m[32mleft join ([m
+[32m+[m[32m  select author_id, count(*)::int as cnt[m
+[32m+[m[32m  from public.posts[m
+[32m+[m[32m  group by author_id[m
+[32m+[m[32m) pp on pp.author_id = pr.id[m
+[32m+[m[32mleft join ([m
+[32m+[m[32m  select p.author_id, count(pl.*)::int as cnt[m
+[32m+[m[32m  from public.posts p[m
+[32m+[m[32m  join public.post_likes pl on pl.post_id = p.id[m
+[32m+[m[32m  group by p.author_id[m
+[32m+[m[32m) likes on likes.author_id = pr.id[m
+[32m+[m[32mleft join public.posts p on p.author_id = pr.id[m
+[32m+[m[32mgroup by pr.id, fwers.cnt, fwing.cnt, pp.cnt, likes.cnt;[m
+[32m+[m
+[32m+[m[32m-- 3) RPC: get stats for a single profile (security invoker)[m
+[32m+[m[32mcreate or replace function public.get_profile_stats(target uuid)[m
+[32m+[m[32mreturns table ([m
+[32m+[m[32m  user_id uuid,[m
+[32m+[m[32m  followers_count int,[m
+[32m+[m[32m  following_count int,[m
+[32m+[m[32m  posts_count int,[m
+[32m+[m[32m  likes_received int,[m
+[32m+[m[32m  last_post_at timestamptz[m
+[32m+[m[32m)[m
+[32m+[m[32mlanguage sql[m
+[32m+[m[32mstable[m
+[32m+[m[32mas $$[m
+[32m+[m[32m  select * from public.v_profile_stats where user_id = target;[m
+[32m+[m[32m$$;[m
+[32m+[m
+[32m+[m[32m-- 4) RPC: get stats for a single post (security invoker)[m
+[32m+[m[32mcreate or replace function public.get_post_stats(pid uuid)[m
+[32m+[m[32mreturns table ([m
+[32m+[m[32m  post_id uuid,[m
+[32m+[m[32m  author_id uuid,[m
+[32m+[m[32m  likes_count int,[m
+[32m+[m[32m  comments_count int,[m
+[32m+[m[32m  created_at timestamptz[m
+[32m+[m[32m)[m
+[32m+[m[32mlanguage sql[m
+[32m+[m[32mstable[m
+[32m+[m[32mas $$[m
+[32m+[m[32m  select * from public.v_post_stats where post_id = pid;[m
+[32m+[m[32m$$;[m
+[32m+[m
+[32m+[m[32m-- 5) Helpful indexes (safe if already present)[m
+[32m+[m[32mcreate index if not exists idx_posts_author_created on public.posts (author_id, created_at desc);[m
+[32m+[m[32mcreate index if not exists idx_post_likes_post on public.post_likes (post_id);[m
+[32m+[m[32mcreate index if not exists idx_post_comments_post on public.post_comments (post_id);[m
+[32m+[m[32mcreate index if not exists idx_follows_followee on public.follows (followee_id);[m
+[32m+[m[32mcreate index if not exists idx_follows_follower on public.follows (follower_id);[m
+[32m+[m
+[32m+[m[32m-- 6) Minimal privileges for Supabase (expose views/RPCs)[m
+[32m+[m[32mgrant select on public.v_post_stats, public.v_profile_stats to anon, authenticated;[m
+[32m+[m[32mgrant execute on function public.get_profile_stats(uuid) to anon, authenticated;[m
+[32m+[m[32mgrant execute on function public.get_post_stats(uuid) to anon, authenticated;[m
+[32m+[m
+[32m+[m[32m-- Notes:[m
+[32m+[m[32m-- - Functions are defined without SECURITY DEFINER, so they respect RLS (security invoker).[m
+[32m+[m[32m-- - Ensure your RLS policies on underlying tables allow the intended reads for the calling role.[m
+[32m+[m
+[32m+[m[32m-- 7) Harden function search_path (silence linter, safer resolution)[m
+[32m+[m[32malter function public.get_profile_stats(uuid) set search_path = public, pg_temp;[m
+[32m+[m[32malter function public.get_post_stats(uuid) set search_path = public, pg_temp;[m
+[32m+[m
+[1mdiff --git a/.vscode/settings.json b/.vscode/settings.json[m
+[1mnew file mode 100644[m
+[1mindex 0000000..6369e4a[m
+[1m--- /dev/null[m
+[1m+++ b/.vscode/settings.json[m
+[36m@@ -0,0 +1,15 @@[m
+[32m+[m[32m{[m
+[32m+[m[32m  "cursor.agentMode": "always",[m
+[32m+[m[32m  "cursor.defaultAgent": ".cursor/agent.json",[m
+[32m+[m[32m  "cursor.explainLanguage": "KA",[m
+[32m+[m[32m  "cursor.codeLanguage": "EN",[m
+[32m+[m[32m  "cursor.rulesFile": ".cursorrules",[m
+[32m+[m[32m  "editor.formatOnSave": true,[m
+[32m+[m[32m  "files.exclude": {[m
+[32m+[m[32m    "**/node_modules": true,[m
+[32m+[m[32m    "**/.git": true,[m
+[32m+[m[32m    "**/.next": true,[m
+[32m+[m[32m    "**/dist": true,[m
+[32m+[m[32m    "**/build": true[m
+[32m+[m[32m  }[m
+[32m+[m[32m}[m
+[1mdiff --git a/STREAM_AUDIT.md b/STREAM_AUDIT.md[m
+[1mnew file mode 100644[m
+[1mindex 0000000..3b65368[m
+[1m--- /dev/null[m
+[1m+++ b/STREAM_AUDIT.md[m
+[36m@@ -0,0 +1,188 @@[m
+[32m+[m[32m# VIORA Stream Module Audit Report[m
+[32m+[m
+[32m+[m[32m## Executive Summary[m
+[32m+[m
+[32m+[m[32mStream მოდულის ბაგ სვიპი და დუბლიკატების გაწმენდა წარმატ�
